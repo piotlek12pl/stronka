@@ -1,7 +1,7 @@
 {
   "rewrites": [
     {
-      "source": "/api/search",
+      "source": "/api/roblox",
       "destination": "/api/search.js"
     }
   ]
