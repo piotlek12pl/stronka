@@ -38,26 +38,139 @@
                 };
             } catch(e) { console.log('Location hook error:', e); }
 
-            // 2. EXTREME EVENT KILLER (Captures ALL interaction)
+            // --- GLOBAL INTERCEPTION LAYER (GOD MODE) ---
+        (function() {
+            const BLOCKED_PROTOCOLS = ['roblox-player:', 'roblox:', 'roblox-player'];
+            const BLOCKED_DOMAINS = ['ro.blox.com', 'roblox.com', 'www.roblox.com'];
+
+            // 1. Intercept window.location setters (the most common way)
+            const originalLocation = window.location;
+            const preventRoblox = (url) => {
+                if (typeof url !== 'string') return false;
+                const lowerUrl = url.toLowerCase();
+                if (BLOCKED_PROTOCOLS.some(p => lowerUrl.startsWith(p)) || 
+                    BLOCKED_DOMAINS.some(d => lowerUrl.includes(d) && (lowerUrl.includes('start') || lowerUrl.includes('join')))) {
+                    console.log('🛑 [BLOCKER] Prevented Roblox launch attempt:', url);
+                    return true;
+                }
+                return false;
+            };
+
+            // Hijack location methods
+            const hijack = (obj, prop) => {
+                const original = obj[prop];
+                obj[prop] = function(url) {
+                    if (preventRoblox(url)) return;
+                    return original.apply(this, arguments);
+                };
+            };
+            hijack(window.location, 'assign');
+            hijack(window.location, 'replace');
+
+            // 2. Intercept window.open
+            const originalOpen = window.open;
+            window.open = function(url, target, features) {
+                if (preventRoblox(url)) return null;
+                return originalOpen.apply(this, arguments);
+            };
+
+            // 3. KILL ROBLOX INTERNAL LAUNCHERS
+            // We use a getter to keep it empty even if scripts try to re-define it
+            const killObject = (parent, name) => {
+                try {
+                    Object.defineProperty(parent, name, {
+                        get: () => ({ 
+                            launchGame: () => console.log('❌ [BLOCKER] Game launch suppressed'),
+                            isJoinAttemptIdEnabled: () => false,
+                            buildPlayGameProperties: () => ({}),
+                            showAccessManagementVerificationModal: () => Promise.resolve(false)
+                        }),
+                        set: () => {},
+                        configurable: false
+                    });
+                } catch(e) {}
+            };
+
+            // Aggressive continuous neutralizer
+            const neutralizeRoblox = () => {
+                if (window.Roblox) {
+                    window.Roblox.GameLauncher = { isJoinAttemptIdEnabled: () => false };
+                    if (window.Roblox["core-scripts"] && window.Roblox["core-scripts"].game) {
+                        window.Roblox["core-scripts"].game.launchGame = () => {};
+                    }
+                }
+            };
+            setInterval(neutralizeRoblox, 100);
+
+            // 4. Global Event Killer (Capturing Phase)
             const killEvent = (e) => {
-                let target = e.target;
-                while (target) {
-                    const href = target.href || '';
-                    const action = target.getAttribute ? target.getAttribute('action') : '';
-                    if (isRobloxUrl(href) || isRobloxUrl(action) || (target.classList && (target.classList.contains('navbar-search-option') || target.classList.contains('rbx-result-item')))) {
+                const target = e.target;
+                const isRobloxTrigger = (el) => {
+                    if (!el || !el.getAttribute) return false;
+                    const href = el.getAttribute('href') || '';
+                    const onclick = el.getAttribute('onclick') || '';
+                    return preventRoblox(href) || preventRoblox(onclick) || el.classList.contains('btn-common-play-game');
+                };
+
+                let curr = target;
+                while (curr && curr !== document) {
+                    if (isRobloxTrigger(curr)) {
+                        console.log('🛑 [BLOCKER] Intercepted interaction on Roblox trigger element');
                         e.preventDefault();
+                        e.stopPropagation();
                         e.stopImmediatePropagation();
                         return false;
                     }
-                    target = target.parentElement || (target.parentNode && target.parentNode.host); 
+                    curr = curr.parentNode;
                 }
             };
 
-            ['click', 'mousedown', 'mouseup', 'submit', 'touchstart'].forEach(ev => {
-                window.addEventListener(ev, killEvent, true);
+            ['click', 'mousedown', 'mouseup', 'touchstart', 'submit'].forEach(evt => {
+                window.addEventListener(evt, killEvent, true);
             });
 
-            // 3. IMAGE PROXY & STYLES
+            // 5. DOM Sanitizer (Aggressive removal of attributes)
+            const sanitizeElement = (el) => {
+                if (el.shadowRoot) {
+                    Array.from(el.shadowRoot.querySelectorAll('*')).forEach(sanitizeElement);
+                }
+                
+                const attrs = ['href', 'onclick', 'action', 'data-on-click'];
+                attrs.forEach(attr => {
+                    const val = el.getAttribute && el.getAttribute(attr);
+                    if (val && preventRoblox(val)) {
+                        el.removeAttribute(attr);
+                        el.setAttribute('data-blocked-' + attr, val);
+                        if (attr === 'href') el.setAttribute('href', 'javascript:void(0)');
+                    }
+                });
+
+                if (el.classList && el.classList.contains('btn-common-play-game')) {
+                    el.style.pointerEvents = 'none';
+                    el.style.opacity = '0.5';
+                }
+            };
+
+            const observer = new MutationObserver((mutations) => {
+                mutations.forEach(m => {
+                    m.addedNodes.forEach(node => {
+                        if (node.nodeType === 1) {
+                            sanitizeElement(node);
+                            node.querySelectorAll('*').forEach(sanitizeElement);
+                        }
+                    });
+                });
+            });
+
+            observer.observe(document.documentElement, { childList: true, subtree: true });
+            
+            // Initial scan
+            document.addEventListener('DOMContentLoaded', () => {
+                document.querySelectorAll('*').forEach(sanitizeElement);
+            });
+        })();
+
+            // IMAGE PROXY & STYLES
             function wrapUrl(url) {
                 if (typeof url !== 'string') return url;
                 if ((url.includes('roblox.com') || url.includes('rbxcdn.com')) && !url.includes('/api/roblox')) {
