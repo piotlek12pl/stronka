@@ -77,6 +77,25 @@
             // Initial Scan
             setInterval(() => document.querySelectorAll('*').forEach(scanNode), 1000);
 
+            // Fix Avatar Styling
+            const style = document.createElement('style');
+            style.innerHTML = `
+                /* Fix avatar image size in search results */
+                .avatar-card-image, 
+                .headshot-image,
+                img[src*="/api/roblox?url="] {
+                    width: 100% !important;
+                    height: 100% !important;
+                    object-fit: cover !important;
+                    border-radius: 50% !important;
+                }
+                .avatar-container, .avatar-card-container {
+                    overflow: hidden !important;
+                    border-radius: 50% !important;
+                }
+            `;
+            document.head.appendChild(style);
+
             console.log('%c[Proxy] Extreme Interceptor Active', 'font-weight: bold; color: #00ff00');
         })();
     </script>
