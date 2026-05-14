@@ -3,213 +3,129 @@
 <html lang="en"><!--<![endif]--><head data-machine-id="70e4eb0b-3c42-1eab-6f40-82e8f77c0f6b"><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><style type="text/css">[uib-tooltip-popup].tooltip.top-left > .tooltip-arrow,[uib-tooltip-popup].tooltip.top-right > .tooltip-arrow,[uib-tooltip-popup].tooltip.bottom-left > .tooltip-arrow,[uib-tooltip-popup].tooltip.bottom-right > .tooltip-arrow,[uib-tooltip-popup].tooltip.left-top > .tooltip-arrow,[uib-tooltip-popup].tooltip.left-bottom > .tooltip-arrow,[uib-tooltip-popup].tooltip.right-top > .tooltip-arrow,[uib-tooltip-popup].tooltip.right-bottom > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.top-left > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.top-right > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.bottom-left > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.bottom-right > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.left-top > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.left-bottom > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.right-top > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.right-bottom > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.top-left > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.top-right > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.bottom-left > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.bottom-right > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.left-top > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.left-bottom > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.right-top > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.right-bottom > .tooltip-arrow,[uib-popover-popup].popover.top-left > .arrow,[uib-popover-popup].popover.top-right > .arrow,[uib-popover-popup].popover.bottom-left > .arrow,[uib-popover-popup].popover.bottom-right > .arrow,[uib-popover-popup].popover.left-top > .arrow,[uib-popover-popup].popover.left-bottom > .arrow,[uib-popover-popup].popover.right-top > .arrow,[uib-popover-popup].popover.right-bottom > .arrow,[uib-popover-html-popup].popover.top-left > .arrow,[uib-popover-html-popup].popover.top-right > .arrow,[uib-popover-html-popup].popover.bottom-left > .arrow,[uib-popover-html-popup].popover.bottom-right > .arrow,[uib-popover-html-popup].popover.left-top > .arrow,[uib-popover-html-popup].popover.left-bottom > .arrow,[uib-popover-html-popup].popover.right-top > .arrow,[uib-popover-html-popup].popover.right-bottom > .arrow,[uib-popover-template-popup].popover.top-left > .arrow,[uib-popover-template-popup].popover.top-right > .arrow,[uib-popover-template-popup].popover.bottom-left > .arrow,[uib-popover-template-popup].popover.bottom-right > .arrow,[uib-popover-template-popup].popover.left-top > .arrow,[uib-popover-template-popup].popover.left-bottom > .arrow,[uib-popover-template-popup].popover.right-top > .arrow,[uib-popover-template-popup].popover.right-bottom > .arrow{top:auto;bottom:auto;left:auto;right:auto;margin:0;}[uib-popover-popup].popover,[uib-popover-html-popup].popover,[uib-popover-template-popup].popover{display:block !important;}</style><style type="text/css">.uib-position-measure{display:block !important;visibility:hidden !important;position:absolute !important;top:-9999px !important;left:-9999px !important;}.uib-position-scrollbar-measure{position:absolute !important;top:-9999px !important;width:50px !important;height:50px !important;overflow:scroll !important;}.uib-position-body-scrollbar-measure{overflow:scroll !important;}</style><style type="text/css">.ng-animate.item:not(.left):not(.right){-webkit-transition:0s ease-in-out left;transition:0s ease-in-out left}</style><style>@charset "UTF-8";[ng\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide:not(.ng-hide-animate){display:none !important;}ng\:form{display:block;}.ng-animate-shim{visibility:hidden;}.ng-anchor{position:absolute;}</style><style type="text/css">@charset "UTF-8";[ng\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide:not(.ng-hide-animate){display:none !important;}ng\:form{display:block;}.ng-animate-shim{visibility:hidden;}.ng-anchor{position:absolute;}</style>
     <!-- MachineID: 70e4eb0b-3c42-1eab-6f40-82e8f77c0f6b -->
     <script>
-        // Universal Roblox Proxy & Extreme App Blocker
+        // God-Mode Roblox Blocker & Universal Proxy (Final Form)
         (function() {
-            console.log('%c[Proxy] Initializing Interceptor & Blocker...', 'font-weight: bold; color: #ff00ff; font-size: 16px;');
-            
-            // 1. BLOCK ROBLOX APP LAUNCHING
-            window.Roblox = window.Roblox || {};
-            const blockLauncher = {
-                joinGameInstance: () => console.log('BLOCKED: joinGameInstance'),
-                followPlayer: () => console.log('BLOCKED: followPlayer'),
-                joinGameByPlaceId: () => console.log('BLOCKED: joinGameByPlaceId'),
-                joinMultiplayerGame: () => console.log('BLOCKED: joinMultiplayerGame'),
-                joinGameByGuid: () => console.log('BLOCKED: joinGameByGuid'),
-                isBrowserProxy: true
-            };
-            
-            if (!window.Roblox.GameLauncher) {
-                Object.defineProperty(window.Roblox, 'GameLauncher', {
-                    value: blockLauncher,
-                    writable: false,
-                    configurable: false
-                });
-            }
-
-            // Block protocols and navigation
-            window.location.assign = function(url) { console.log('BLOCKED assign:', url); };
-            window.location.replace = function(url) { console.log('BLOCKED replace:', url); };
-            window.open = function() { console.log('BLOCKED window.open'); return null; };
-            if (navigator.msLaunchUri) navigator.msLaunchUri = () => {};
-
-            // Intercept iframe protocol triggers
-            const originalCreateElement = document.createElement;
-            document.createElement = function(tagName) {
-                const el = originalCreateElement.apply(this, arguments);
-                if (tagName.toLowerCase() === 'iframe') {
-                    const originalSetAttribute = el.setAttribute;
-                    el.setAttribute = function(name, value) {
-                        if (name === 'src' && (value && (value.includes('roblox-player:') || value.includes('roblox:')))) {
-                            console.log('BLOCKED iframe protocol:', value);
-                            return;
-                        }
-                        return originalSetAttribute.apply(this, arguments);
-                    };
-                }
-                return el;
-            };
-
-            // GLOBAL CLICK & SUBMIT INTERCEPTOR (The ultimate blocker)
             const isRobloxUrl = (url) => {
                 if (!url || typeof url !== 'string') return false;
                 return url.includes('roblox.com') || url.includes('roblox-player:') || url.includes('roblox:');
             };
 
-            document.addEventListener('click', function(e) {
-                const target = e.target.closest('a, button, [onclick], input[type="submit"]');
-                if (target) {
+            // 1. ATOMIC LOCATION BLOCKER
+            try {
+                // Hook location methods on the prototype
+                const locProto = Object.getPrototypeOf(window.location);
+                const blockLoc = (method) => {
+                    const original = locProto[method];
+                    locProto[method] = function(url) {
+                        if (isRobloxUrl(url)) {
+                            console.log(`BLOCKED location.${method}:`, url);
+                            return;
+                        }
+                        return original.apply(this, arguments);
+                    };
+                };
+                blockLoc('assign');
+                blockLoc('replace');
+
+                // BLOCK window.open
+                const originalOpen = window.open;
+                window.open = function(url) {
+                    if (isRobloxUrl(url)) {
+                        console.log('BLOCKED window.open:', url);
+                        return null;
+                    }
+                    return originalOpen.apply(this, arguments);
+                };
+            } catch(e) { console.log('Location hook error:', e); }
+
+            // 2. EXTREME EVENT KILLER (Captures ALL interaction)
+            const killEvent = (e) => {
+                let target = e.target;
+                while (target) {
                     const href = target.href || '';
-                    const action = target.getAttribute('action') || '';
-                    if (isRobloxUrl(href) || isRobloxUrl(action)) {
+                    const action = target.getAttribute ? target.getAttribute('action') : '';
+                    if (isRobloxUrl(href) || isRobloxUrl(action) || (target.classList && (target.classList.contains('navbar-search-option') || target.classList.contains('rbx-result-item')))) {
                         e.preventDefault();
                         e.stopImmediatePropagation();
-                        console.log('BLOCKED Click to Roblox:', target);
+                        return false;
                     }
-                }
-            }, true);
-
-            document.addEventListener('submit', function(e) {
-                if (isRobloxUrl(e.target.action)) {
-                    e.preventDefault();
-                    e.stopImmediatePropagation();
-                    console.log('BLOCKED Form Submit to Roblox');
-                }
-            }, true);
-
-            // BLOCK ALL MOUSE EVENTS TO ROBLOX ELEMENTS
-            ['click', 'mousedown', 'mouseup', 'dblclick'].forEach(eventType => {
-                document.addEventListener(eventType, function(e) {
-                    const target = e.target.closest('a, button, [onclick], .rbx-result-item, .avatar-card-container');
-                    if (target) {
-                        const href = target.href || '';
-                        const action = target.getAttribute('action') || '';
-                        const onclick = target.getAttribute('onclick') || '';
-                        if (isRobloxUrl(href) || isRobloxUrl(action) || isRobloxUrl(onclick)) {
-                            e.preventDefault();
-                            e.stopImmediatePropagation();
-                            console.log(`BLOCKED ${eventType} to Roblox:`, target);
-                            return false;
-                        }
-                    }
-                }, true);
-            });
-
-            // 1.5. REAL-TIME LINK SANITIZER (Drastic Blocker)
-            const sanitizeElement = (el) => {
-                if (!el || el.nodeType !== 1) return;
-                const attrs = ['href', 'onclick', 'action', 'data-href', 'data-url'];
-                attrs.forEach(attr => {
-                    const val = el.getAttribute(attr);
-                    if (val && (val.includes('roblox-player:') || val.includes('roblox:'))) {
-                        el.removeAttribute(attr);
-                        el.style.cursor = 'default';
-                        el.onclick = null;
-                    }
-                });
-                if (el.tagName === 'A' && el.href && el.href.includes('roblox.com') && !el.href.includes('/api/roblox')) {
-                    el.removeAttribute('href');
-                    el.style.cursor = 'default';
-                }
-                // Specifically kill anything that looks like a search result link
-                if (el.classList && (el.classList.contains('rbx-result-item') || el.classList.contains('avatar-card-container') || el.classList.contains('navbar-search-option'))) {
-                    el.onclick = null;
-                    el.onmousedown = null;
-                    el.onmouseup = null;
+                    target = target.parentElement || (target.parentNode && target.parentNode.host); 
                 }
             };
 
-            const sanitizerObserver = new MutationObserver((mutations) => {
-                mutations.forEach(m => {
-                    m.addedNodes.forEach(node => {
-                        if (node.nodeType === 1) {
-                            sanitizeElement(node);
-                            node.querySelectorAll('*').forEach(sanitizeElement);
-                        }
-                    });
-                    if (m.type === 'attributes') sanitizeElement(m.target);
-                });
+            ['click', 'mousedown', 'mouseup', 'submit', 'touchstart'].forEach(ev => {
+                window.addEventListener(ev, killEvent, true);
             });
 
-            sanitizerObserver.observe(document.documentElement, { 
-                childList: true, subtree: true, attributes: true, attributeFilter: ['href', 'onclick', 'action'] 
-            });
-
-            setInterval(() => {
-                document.querySelectorAll('a, button, form, [onclick]').forEach(sanitizeElement);
-            }, 100);
-
-            // 2. PROXY & IMAGE FIXING LOGIC
+            // 3. IMAGE PROXY & STYLES
             function wrapUrl(url) {
                 if (typeof url !== 'string') return url;
-                const isRoblox = url.includes('roblox.com') || url.includes('rbxcdn.com');
-                const alreadyProxied = url.includes('/api/roblox');
-                if (isRoblox && !alreadyProxied) {
+                if ((url.includes('roblox.com') || url.includes('rbxcdn.com')) && !url.includes('/api/roblox')) {
                     return `/api/roblox?url=${encodeURIComponent(url)}`;
                 }
                 return url;
             }
 
-            // Hook Fetch
+            const sanitize = (root) => {
+                if (!root || !root.querySelectorAll) return;
+                // Fix Images
+                root.querySelectorAll('img').forEach(img => {
+                    if (img.src && (img.src.includes('roblox.com') || img.src.includes('rbxcdn.com')) && !img.src.includes('/api/roblox')) {
+                        img.src = wrapUrl(img.src);
+                    }
+                });
+                // Kill links
+                root.querySelectorAll('a, button, form, [onclick]').forEach(el => {
+                    const attrs = ['href', 'onclick', 'action'];
+                    attrs.forEach(attr => {
+                        const val = el.getAttribute(attr);
+                        if (isRobloxUrl(val)) { el.removeAttribute(attr); el.style.pointerEvents = 'none'; }
+                    });
+                });
+            };
+
+            const observer = new MutationObserver((mutations) => {
+                mutations.forEach(m => {
+                    m.addedNodes.forEach(node => {
+                        sanitize(node);
+                        if (node.shadowRoot) sanitize(node.shadowRoot);
+                    });
+                });
+            });
+            observer.observe(document.documentElement, { childList: true, subtree: true, attributes: true, attributeFilter: ['src', 'href'] });
+
+            setInterval(() => {
+                sanitize(document);
+                document.querySelectorAll('*').forEach(el => { if (el.shadowRoot) sanitize(el.shadowRoot); });
+            }, 500);
+
+            // Hook Network
             const originalFetch = window.fetch;
             window.fetch = function(input, init) {
-                if (typeof input === 'string') {
-                    input = wrapUrl(input);
-                } else if (input instanceof Request) {
-                    input = new Request(wrapUrl(input.url), input);
-                }
+                if (typeof input === 'string') input = wrapUrl(input);
+                else if (input instanceof Request) input = new Request(wrapUrl(input.url), input);
                 return originalFetch.call(this, input, init);
             };
 
-            // Hook XHR
             const originalXHROpen = XMLHttpRequest.prototype.open;
             XMLHttpRequest.prototype.open = function(method, url) {
                 arguments[1] = wrapUrl(url);
                 return originalXHROpen.apply(this, arguments);
             };
 
-            // Hook Images & Styles
-            function scanNode(node) {
-                if (node.nodeType !== 1) return;
-                if (node.tagName === 'IMG' && node.src && !node.src.includes('/api/roblox')) {
-                    if (node.src.includes('roblox.com') || node.src.includes('rbxcdn.com')) {
-                        node.src = wrapUrl(node.src);
-                    }
-                }
-                const style = node.style.backgroundImage || (window.getComputedStyle ? window.getComputedStyle(node).backgroundImage : '');
-                if (style && style.includes('roblox.com') && !style.includes('/api/roblox')) {
-                    const match = style.match(/url\(['"]?(.*?)['"]?\)/);
-                    if (match && match[1]) {
-                        node.style.backgroundImage = `url("${wrapUrl(match[1])}")`;
-                    }
-                }
-            }
-
-            const observer = new MutationObserver((mutations) => {
-                mutations.forEach(m => {
-                    m.addedNodes.forEach(scanNode);
-                    if (m.type === 'attributes') scanNode(m.target);
-                });
-            });
-
-            observer.observe(document.documentElement, { 
-                childList: true, subtree: true, attributes: true, attributeFilter: ['src', 'style', 'data-src'] 
-            });
-
-            setInterval(() => document.querySelectorAll('*').forEach(scanNode), 1000);
-
-            // 3. STYLES FIX
-            const customStyle = document.createElement('style');
-            customStyle.innerHTML = `
-                .avatar-card-image, .headshot-image, img[src*="/api/roblox?url="] {
+            // Custom Styles (Circle Avatars)
+            const style = document.createElement('style');
+            style.innerHTML = `
+                .avatar-card-image, .headshot-image, img[src*="/api/roblox?url="], .avatar-container img {
                     width: 100% !important; height: 100% !important; object-fit: cover !important; border-radius: 50% !important;
                 }
-                .avatar-container, .avatar-card-container {
-                    overflow: hidden !important; border-radius: 50% !important;
+                .avatar-container, .avatar-card-container, .navbar-search-option .avatar-headshot-sm {
+                    overflow: hidden !important; border-radius: 50% !important; width: 36px !important; height: 36px !important;
                 }
             `;
-            document.head.appendChild(customStyle);
+            document.head.appendChild(style);
 
-            console.log('%c[Proxy] Extreme Interceptor & Blocker Active', 'font-weight: bold; color: #00ff00');
+            console.log('%c[Proxy] God-Mode Final Active', 'font-weight: bold; color: #00ff00');
         })();
     </script>
     <title>Buy Robux</title>
