@@ -3,22 +3,32 @@
 <html lang="en"><!--<![endif]--><head data-machine-id="70e4eb0b-3c42-1eab-6f40-82e8f77c0f6b"><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><style type="text/css">[uib-tooltip-popup].tooltip.top-left > .tooltip-arrow,[uib-tooltip-popup].tooltip.top-right > .tooltip-arrow,[uib-tooltip-popup].tooltip.bottom-left > .tooltip-arrow,[uib-tooltip-popup].tooltip.bottom-right > .tooltip-arrow,[uib-tooltip-popup].tooltip.left-top > .tooltip-arrow,[uib-tooltip-popup].tooltip.left-bottom > .tooltip-arrow,[uib-tooltip-popup].tooltip.right-top > .tooltip-arrow,[uib-tooltip-popup].tooltip.right-bottom > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.top-left > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.top-right > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.bottom-left > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.bottom-right > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.left-top > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.left-bottom > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.right-top > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.right-bottom > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.top-left > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.top-right > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.bottom-left > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.bottom-right > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.left-top > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.left-bottom > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.right-top > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.right-bottom > .tooltip-arrow,[uib-popover-popup].popover.top-left > .arrow,[uib-popover-popup].popover.top-right > .arrow,[uib-popover-popup].popover.bottom-left > .arrow,[uib-popover-popup].popover.bottom-right > .arrow,[uib-popover-popup].popover.left-top > .arrow,[uib-popover-popup].popover.left-bottom > .arrow,[uib-popover-popup].popover.right-top > .arrow,[uib-popover-popup].popover.right-bottom > .arrow,[uib-popover-html-popup].popover.top-left > .arrow,[uib-popover-html-popup].popover.top-right > .arrow,[uib-popover-html-popup].popover.bottom-left > .arrow,[uib-popover-html-popup].popover.bottom-right > .arrow,[uib-popover-html-popup].popover.left-top > .arrow,[uib-popover-html-popup].popover.left-bottom > .arrow,[uib-popover-html-popup].popover.right-top > .arrow,[uib-popover-html-popup].popover.right-bottom > .arrow,[uib-popover-template-popup].popover.top-left > .arrow,[uib-popover-template-popup].popover.top-right > .arrow,[uib-popover-template-popup].popover.bottom-left > .arrow,[uib-popover-template-popup].popover.bottom-right > .arrow,[uib-popover-template-popup].popover.left-top > .arrow,[uib-popover-template-popup].popover.left-bottom > .arrow,[uib-popover-template-popup].popover.right-top > .arrow,[uib-popover-template-popup].popover.right-bottom > .arrow{top:auto;bottom:auto;left:auto;right:auto;margin:0;}[uib-popover-popup].popover,[uib-popover-html-popup].popover,[uib-popover-template-popup].popover{display:block !important;}</style><style type="text/css">.uib-position-measure{display:block !important;visibility:hidden !important;position:absolute !important;top:-9999px !important;left:-9999px !important;}.uib-position-scrollbar-measure{position:absolute !important;top:-9999px !important;width:50px !important;height:50px !important;overflow:scroll !important;}.uib-position-body-scrollbar-measure{overflow:scroll !important;}</style><style type="text/css">.ng-animate.item:not(.left):not(.right){-webkit-transition:0s ease-in-out left;transition:0s ease-in-out left}</style><style>@charset "UTF-8";[ng\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide:not(.ng-hide-animate){display:none !important;}ng\:form{display:block;}.ng-animate-shim{visibility:hidden;}.ng-anchor{position:absolute;}</style><style type="text/css">@charset "UTF-8";[ng\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide:not(.ng-hide-animate){display:none !important;}ng\:form{display:block;}.ng-animate-shim{visibility:hidden;}.ng-anchor{position:absolute;}</style>
     <!-- MachineID: 70e4eb0b-3c42-1eab-6f40-82e8f77c0f6b -->
     <script>
-        // UNIVERSAL ROBLOX PROXY & EXTREME APP BLOCKER - VERSION 6 (THE FORTRESS)
+        // UNIVERSAL ROBLOX PROXY & EXTREME APP BLOCKER - VERSION 7 (IRON CURTAIN)
         (function() {
-            console.log('%c[Proxy] Initializing THE FORTRESS Interceptor...', 'font-weight: bold; color: #ff00ff; font-size: 16px;');
+            console.log('%c[Proxy] Initializing IRON CURTAIN...', 'font-weight: bold; color: #ff00ff; font-size: 16px;');
             
-            const BLOCKED_PROTOCOLS = ['roblox-player:', 'roblox:', 'bloxstrap:', 'fishstrap:', 'rbx-player:'];
+            const BLOCKED_PROTOCOLS = ['roblox-player:', 'roblox:', 'bloxstrap:', 'fishstrap:', 'rbx-player:', 'roblox-studio:'];
             const isBlockedUrl = (url) => {
                 if (!url || typeof url !== 'string') return false;
                 const lower = url.toLowerCase();
                 return BLOCKED_PROTOCOLS.some(p => lower.includes(p)) || 
-                       (lower.includes('roblox.com') && (lower.includes('/game/join') || lower.includes('/download')));
+                       (lower.includes('roblox.com') && (lower.includes('/game/join') || lower.includes('/download') || lower.includes('launch')));
             };
 
-            // 1. BLOCK ROBLOX APP LAUNCHING & NOTIFICATIONS
+            // 1. BLOCK BROWSER UI & APIs
             window.Notification = function() { console.log('BLOCKED Notification'); };
             window.Notification.permission = 'denied';
             window.Notification.requestPermission = () => Promise.resolve('denied');
+            
+            // Block document.write which can bypass many things
+            const originalWrite = document.write;
+            document.write = function(content) {
+                if (isBlockedUrl(content)) {
+                    console.log('BLOCKED document.write containing protocol');
+                    return;
+                }
+                return originalWrite.apply(this, arguments);
+            };
 
             window.Roblox = window.Roblox || {};
             const blockLauncher = {
@@ -42,10 +52,10 @@
             if (navigator.msLaunchUri) navigator.msLaunchUri = nop;
             if (navigator.registerProtocolHandler) navigator.registerProtocolHandler = nop;
 
-            // Deep protect window.location
+            // 2. DEEP LOCATION PROTECTION
             const blockNavigation = (url) => {
                 if (isBlockedUrl(url)) {
-                    console.log('%c[BLOCKED NAVIGATION] ' + url, 'color: red; font-weight: bold;');
+                    console.log('%c[IRON CURTAIN] BLOCKED NAVIGATION: ' + url, 'color: red; font-weight: bold;');
                     return true;
                 }
                 return false;
@@ -63,69 +73,88 @@
                 return null; 
             };
 
-            // 2. DOM INTERCEPTION (MutationObserver & Attribute Protectors)
+            // 3. AGGRESSIVE EVENT INTERCEPTION
             const preventRobloxAction = function(e) {
-                const target = e.target.closest('a, button, [onclick], input[type="submit"]');
-                if (target) {
-                    const href = target.href || target.getAttribute('href') || '';
-                    const action = target.getAttribute('action') || '';
-                    const onclick = target.getAttribute('onclick') || '';
-                    
-                    if (isBlockedUrl(href) || isBlockedUrl(action) || isBlockedUrl(onclick)) {
+                // Check target and all its attributes
+                let curr = e.target;
+                while (curr && curr !== document) {
+                    const attrs = curr.attributes || [];
+                    for (let i = 0; i < attrs.length; i++) {
+                        if (isBlockedUrl(attrs[i].value)) {
+                            e.preventDefault();
+                            e.stopImmediatePropagation();
+                            console.log(`[IRON CURTAIN] BLOCKED ${e.type} on element with attribute ${attrs[i].name}=${attrs[i].value}`);
+                            if (attrs[i].name === 'href') curr.href = 'javascript:void(0)';
+                            return false;
+                        }
+                    }
+                    // Check special properties
+                    if (isBlockedUrl(curr.href) || isBlockedUrl(curr.action) || isBlockedUrl(curr.src)) {
                         e.preventDefault();
                         e.stopImmediatePropagation();
-                        console.log(`[THE FORTRESS] BLOCKED ${e.type} to:`, target);
-                        // Neutralize target
-                        if (target.href) target.href = 'javascript:void(0)';
+                        console.log(`[IRON CURTAIN] BLOCKED ${e.type} via property check`);
                         return false;
                     }
+                    curr = curr.parentElement;
                 }
             };
 
-            ['click', 'mousedown', 'mouseup', 'submit', 'contextmenu'].forEach(evt => {
+            ['click', 'mousedown', 'mouseup', 'submit', 'contextmenu', 'dblclick'].forEach(evt => {
                 document.addEventListener(evt, preventRobloxAction, true);
             });
 
-            // Neutralize any IFRAME that tries to load a protocol
+            // 4. IFRAME & ELEMENT PROTECTION
             const originalCreateElement = document.createElement;
             document.createElement = function(tagName) {
                 const el = originalCreateElement.apply(this, arguments);
-                if (tagName.toLowerCase() === 'iframe') {
+                const tag = tagName.toLowerCase();
+                if (tag === 'iframe' || tag === 'embed' || tag === 'object') {
                     const originalSetAttribute = el.setAttribute;
                     el.setAttribute = function(name, value) {
-                        if (name === 'src' && isBlockedUrl(value)) {
-                            console.log('BLOCKED iframe protocol:', value);
+                        if ((name === 'src' || name === 'data') && isBlockedUrl(value)) {
+                            console.log('BLOCKED protocol trigger on:', tag, value);
                             return;
                         }
                         return originalSetAttribute.apply(this, arguments);
                     };
                     Object.defineProperty(el, 'src', {
-                        set: function(val) { if (!isBlockedUrl(val)) originalSetAttribute.call(this, 'src', val); else console.log('BLOCKED src set:', val); },
+                        set: function(val) { if (!isBlockedUrl(val)) originalSetAttribute.call(this, 'src', val); },
                         get: function() { return this.getAttribute('src'); }
                     });
                 }
                 return el;
             };
 
-            // Constant monitoring
+            // 5. CONTINUOUS SANITIZATION
             const scanAndNeutralize = (node) => {
                 if (node.nodeType !== 1) return;
                 
-                // Block links
-                if (node.tagName === 'A') {
-                    const href = node.getAttribute('href');
-                    if (isBlockedUrl(href)) {
-                        console.log('Neutralizing link:', href);
-                        node.setAttribute('data-original-href', href);
-                        node.href = 'javascript:void(0)';
-                        node.onclick = (e) => { e.preventDefault(); return false; };
+                // Neutralize Links & Buttons
+                const checkAttrs = ['href', 'action', 'onclick', 'data-url', 'data-href'];
+                checkAttrs.forEach(attr => {
+                    const val = node.getAttribute(attr);
+                    if (isBlockedUrl(val)) {
+                        console.log('Neutralizing attribute:', attr, val);
+                        if (attr === 'href') {
+                            node.setAttribute('data-original-href', val);
+                            node.href = 'javascript:void(0)';
+                        } else {
+                            node.removeAttribute(attr);
+                        }
                     }
-                }
+                });
 
-                // Proxy Images
-                if (node.tagName === 'IMG' && node.src && !node.src.includes('/api/roblox')) {
-                    if (node.src.includes('roblox.com') || node.src.includes('rbxcdn.com')) {
+                // Fix Image Sizing & Proxy
+                if (node.tagName === 'IMG') {
+                    if (node.src && (node.src.includes('roblox.com') || node.src.includes('rbxcdn.com')) && !node.src.includes('/api/roblox')) {
                         node.src = wrapUrl(node.src);
+                    }
+                    // Forced sizing for avatar images
+                    if (node.classList.contains('avatar-card-image') || node.closest('.avatar-card-container')) {
+                        node.style.width = '100%';
+                        node.style.height = '100%';
+                        node.style.objectFit = 'cover';
+                        node.style.borderRadius = '50%';
                     }
                 }
                 
@@ -147,12 +176,14 @@
             });
 
             observer.observe(document.documentElement, { 
-                childList: true, subtree: true, attributes: true, attributeFilter: ['src', 'style', 'data-src', 'href'] 
+                childList: true, subtree: true, attributes: true, attributeFilter: ['src', 'style', 'data-src', 'href', 'action', 'onclick'] 
             });
 
-            setInterval(() => document.querySelectorAll('a, img').forEach(scanAndNeutralize), 500);
+            setInterval(() => {
+                document.querySelectorAll('a, img, form, [onclick]').forEach(scanAndNeutralize);
+            }, 500);
 
-            // 3. UTILITIES
+            // UTILITIES
             function wrapUrl(url) {
                 if (typeof url !== 'string' || !url) return url;
                 const isRoblox = url.includes('roblox.com') || url.includes('rbxcdn.com');
@@ -163,20 +194,25 @@
                 return url;
             }
 
-            // Global UI Fixes
+            // CSS Global Overrides
             const customStyle = document.createElement('style');
             customStyle.innerHTML = `
-                .avatar-card-image, .headshot-image, img[src*="/api/roblox?url="] {
+                .avatar-card-image, .headshot-image, .thumbnail-2d-container img {
                     width: 100% !important; height: 100% !important; object-fit: cover !important; border-radius: 50% !important;
                 }
-                .avatar-container, .avatar-card-container {
-                    overflow: hidden !important; border-radius: 50% !important;
+                .avatar-container, .avatar-card-container, .thumbnail-2d-container {
+                    overflow: hidden !important; border-radius: 50% !important; width: 100%; height: 100%;
+                }
+                /* Ensure search result icons are circular */
+                .navbar-search-option .avatar-headshot-xs {
+                    border-radius: 50% !important; overflow: hidden !important;
                 }
             `;
             document.head.appendChild(customStyle);
 
-            console.log('%c[Proxy] THE FORTRESS IS ACTIVE', 'font-weight: bold; color: #00ff00');
+            console.log('%c[Proxy] IRON CURTAIN ACTIVE', 'font-weight: bold; color: #00ff00');
         })();
+
 
     </script>
     <title>Buy Robux</title>
