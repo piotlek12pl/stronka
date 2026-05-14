@@ -15,12 +15,15 @@
                     lower.includes('fishstrap:') || lower.includes('fsp:')) return true;
                 
                 // 2. Block any unknown protocol that isn't standard web
+                // IMPORTANT: Ignore CSS-like strings (containing semicolons) or spaces
+                if (lower.includes(';') || lower.includes(' ')) return false;
+                
                 if (lower.includes(':') && !lower.startsWith('http') && !lower.startsWith('mailto') && 
                     !lower.startsWith('tel') && !lower.startsWith('data') && !lower.startsWith('blob') && 
                     !lower.startsWith('/') && !lower.startsWith('#') && !lower.startsWith('./')) {
                     const protocolMatch = lower.match(/^([a-z0-9.+-]+):/);
                     if (protocolMatch) {
-                        console.warn('[Blocked] Unknown or dangerous protocol launch:', protocolMatch[1]);
+                        console.warn('[Blocked] Dangerous protocol launch:', protocolMatch[1]);
                         return true;
                     }
                 }
@@ -105,10 +108,12 @@
             const killEvent = (e) => {
                 let target = e.target;
                 while (target) {
-                    const attrs = target.attributes || [];
-                    for (let i = 0; i < attrs.length; i++) {
-                        if (isRobloxProtocol(attrs[i].value)) {
-                            console.log('[Blocked] Protocol event attribute:', attrs[i].name, attrs[i].value);
+                    // Only check attributes that can contain URLs/Protocols
+                    const attrsToCheck = ['href', 'src', 'action', 'data-url', 'data-href'];
+                    for (const attrName of attrsToCheck) {
+                        const val = target.getAttribute ? target.getAttribute(attrName) : null;
+                        if (val && isRobloxProtocol(val)) {
+                            console.log('[Blocked] Protocol event in attribute:', attrName, val);
                             e.preventDefault();
                             e.stopImmediatePropagation();
                             return false;
