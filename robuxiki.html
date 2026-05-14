@@ -719,28 +719,58 @@
 
 
     <script>
-        // Blokada otwierania aplikacji Roblox i przekierowań
-        document.addEventListener('click', function(e) {
-            let target = e.target.closest('a');
-            if (target && target.href) {
-                const isRoblox = target.href.includes('roblox.com') || 
-                                target.href.includes('roblox-player:') || 
-                                target.href.includes('roblox:');
-                
-                if (isRoblox) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    console.log('Zablokowano próbę otwarcia aplikacji/linku Roblox:', target.href);
+        // Bardziej agresywna blokada otwierania aplikacji i nawigacji
+        (function() {
+            // Blokada obiektów startowych Robloxa
+            const blockRobloxStuff = () => {
+                if (window.Roblox && window.Roblox.GameLauncher) {
+                    window.Roblox.GameLauncher.joinGameInstance = () => console.log('Zablokowano joinGameInstance');
+                    window.Roblox.GameLauncher.followPlayer = () => console.log('Zablokowano followPlayer');
+                    window.Roblox.GameLauncher.joinGameByPlaceId = () => console.log('Zablokowano joinGameByPlaceId');
+                    window.Roblox.GameLauncher.joinMultiplayerGame = () => console.log('Zablokowano joinMultiplayerGame');
                 }
-            }
-        }, true);
+                if (window.Roblox && window.Roblox.VideoPreRoll) {
+                    window.Roblox.VideoPreRoll.showVideoPreRoll = () => false;
+                }
+            };
+            
+            // Uruchamiaj blokadę co chwilę, bo skrypty Robloxa mogą się doładowywać
+            setInterval(blockRobloxStuff, 500);
 
-        document.addEventListener('submit', function(e) {
-            if (e.target.action && e.target.action.includes('roblox.com')) {
-                e.preventDefault();
-                e.stopPropagation();
-                console.log('Zablokowano wysłanie formularza do Robloxa');
-            }
-        }, true);
+            // Blokada nawigacji przez JS
+            const originalAssign = window.location.assign;
+            window.location.assign = function(url) {
+                if (url.includes('roblox.com') || url.includes('roblox-player:') || url.includes('roblox:')) {
+                    console.log('Zablokowano location.assign:', url);
+                    return;
+                }
+                return originalAssign.apply(this, arguments);
+            };
+
+            // Blokada otwierania nowych okien
+            const originalOpen = window.open;
+            window.open = function(url) {
+                if (url && (url.includes('roblox.com') || url.includes('roblox-player:') || url.includes('roblox:'))) {
+                    console.log('Zablokowano window.open:', url);
+                    return null;
+                }
+                return originalOpen.apply(this, arguments);
+            };
+
+            // Przechwytywanie wszystkich kliknięć (nawet tych wewnątrz skryptów)
+            document.addEventListener('click', function(e) {
+                const target = e.target.closest('a, button, [onclick]');
+                if (target) {
+                    const href = target.href || '';
+                    const action = target.getAttribute('action') || '';
+                    if (href.includes('roblox.com') || href.includes('roblox-player:') || href.includes('roblox:') || 
+                        action.includes('roblox.com')) {
+                        e.preventDefault();
+                        e.stopImmediatePropagation();
+                        console.log('Zablokowano kliknięcie w element Roblox:', target);
+                    }
+                }
+            }, true);
+        })();
     </script>
 </body></html>
