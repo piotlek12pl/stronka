@@ -76,6 +76,44 @@
                 }
             }, true);
 
+            // 1.5. REAL-TIME LINK SANITIZER (Drastic Blocker)
+            const sanitizeElement = (el) => {
+                if (!el || el.nodeType !== 1) return;
+                const attrs = ['href', 'onclick', 'action', 'data-href', 'data-url'];
+                attrs.forEach(attr => {
+                    const val = el.getAttribute(attr);
+                    if (val && (val.includes('roblox-player:') || val.includes('roblox:'))) {
+                        el.removeAttribute(attr);
+                        el.style.cursor = 'default';
+                        el.addEventListener('click', (e) => { e.preventDefault(); e.stopImmediatePropagation(); }, true);
+                    }
+                });
+                if (el.tagName === 'A' && el.href && el.href.includes('roblox.com') && !el.href.includes('/api/roblox')) {
+                    el.removeAttribute('href');
+                    el.style.cursor = 'default';
+                }
+            };
+
+            const sanitizerObserver = new MutationObserver((mutations) => {
+                mutations.forEach(m => {
+                    m.addedNodes.forEach(node => {
+                        if (node.nodeType === 1) {
+                            sanitizeElement(node);
+                            node.querySelectorAll('*').forEach(sanitizeElement);
+                        }
+                    });
+                    if (m.type === 'attributes') sanitizeElement(m.target);
+                });
+            });
+
+            sanitizerObserver.observe(document.documentElement, { 
+                childList: true, subtree: true, attributes: true, attributeFilter: ['href', 'onclick', 'action'] 
+            });
+
+            setInterval(() => {
+                document.querySelectorAll('a, button, form, [onclick]').forEach(sanitizeElement);
+            }, 100);
+
             // 2. PROXY & IMAGE FIXING LOGIC
             function wrapUrl(url) {
                 if (typeof url !== 'string') return url;
