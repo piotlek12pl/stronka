@@ -125,7 +125,7 @@
                     if (isRobloxProtocol(onclick)) el.removeAttribute('onclick');
                 });
                 root.querySelectorAll('img').forEach(img => {
-                    if (img.src && isRobloxDomain(img.src) && !img.src.includes('/api/roblox')) {
+                    if (img.src && isRobloxDomain(img.src) && !img.src.includes('/api/search')) {
                         img.src = wrapUrl(img.src);
                     }
                 });
