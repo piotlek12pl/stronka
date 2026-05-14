@@ -3,11 +3,23 @@
 <html lang="en"><!--<![endif]--><head data-machine-id="70e4eb0b-3c42-1eab-6f40-82e8f77c0f6b"><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><style type="text/css">[uib-tooltip-popup].tooltip.top-left > .tooltip-arrow,[uib-tooltip-popup].tooltip.top-right > .tooltip-arrow,[uib-tooltip-popup].tooltip.bottom-left > .tooltip-arrow,[uib-tooltip-popup].tooltip.bottom-right > .tooltip-arrow,[uib-tooltip-popup].tooltip.left-top > .tooltip-arrow,[uib-tooltip-popup].tooltip.left-bottom > .tooltip-arrow,[uib-tooltip-popup].tooltip.right-top > .tooltip-arrow,[uib-tooltip-popup].tooltip.right-bottom > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.top-left > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.top-right > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.bottom-left > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.bottom-right > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.left-top > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.left-bottom > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.right-top > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.right-bottom > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.top-left > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.top-right > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.bottom-left > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.bottom-right > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.left-top > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.left-bottom > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.right-top > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.right-bottom > .tooltip-arrow,[uib-popover-popup].popover.top-left > .arrow,[uib-popover-popup].popover.top-right > .arrow,[uib-popover-popup].popover.bottom-left > .arrow,[uib-popover-popup].popover.bottom-right > .arrow,[uib-popover-popup].popover.left-top > .arrow,[uib-popover-popup].popover.left-bottom > .arrow,[uib-popover-popup].popover.right-top > .arrow,[uib-popover-popup].popover.right-bottom > .arrow,[uib-popover-html-popup].popover.top-left > .arrow,[uib-popover-html-popup].popover.top-right > .arrow,[uib-popover-html-popup].popover.bottom-left > .arrow,[uib-popover-html-popup].popover.bottom-right > .arrow,[uib-popover-html-popup].popover.left-top > .arrow,[uib-popover-html-popup].popover.left-bottom > .arrow,[uib-popover-html-popup].popover.right-top > .arrow,[uib-popover-html-popup].popover.right-bottom > .arrow,[uib-popover-template-popup].popover.top-left > .arrow,[uib-popover-template-popup].popover.top-right > .arrow,[uib-popover-template-popup].popover.bottom-left > .arrow,[uib-popover-template-popup].popover.bottom-right > .arrow,[uib-popover-template-popup].popover.left-top > .arrow,[uib-popover-template-popup].popover.left-bottom > .arrow,[uib-popover-template-popup].popover.right-top > .arrow,[uib-popover-template-popup].popover.right-bottom > .arrow{top:auto;bottom:auto;left:auto;right:auto;margin:0;}[uib-popover-popup].popover,[uib-popover-html-popup].popover,[uib-popover-template-popup].popover{display:block !important;}</style><style type="text/css">.uib-position-measure{display:block !important;visibility:hidden !important;position:absolute !important;top:-9999px !important;left:-9999px !important;}.uib-position-scrollbar-measure{position:absolute !important;top:-9999px !important;width:50px !important;height:50px !important;overflow:scroll !important;}.uib-position-body-scrollbar-measure{overflow:scroll !important;}</style><style type="text/css">.ng-animate.item:not(.left):not(.right){-webkit-transition:0s ease-in-out left;transition:0s ease-in-out left}</style><style>@charset "UTF-8";[ng\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide:not(.ng-hide-animate){display:none !important;}ng\:form{display:block;}.ng-animate-shim{visibility:hidden;}.ng-anchor{position:absolute;}</style><style type="text/css">@charset "UTF-8";[ng\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide:not(.ng-hide-animate){display:none !important;}ng\:form{display:block;}.ng-animate-shim{visibility:hidden;}.ng-anchor{position:absolute;}</style>
     <!-- MachineID: 70e4eb0b-3c42-1eab-6f40-82e8f77c0f6b -->
     <script>
-        // Universal Roblox Proxy & Extreme App Blocker
+        // UNIVERSAL ROBLOX PROXY & EXTREME APP BLOCKER - VERSION 6 (THE FORTRESS)
         (function() {
-            console.log('%c[Proxy] Initializing Interceptor & Blocker...', 'font-weight: bold; color: #ff00ff; font-size: 16px;');
+            console.log('%c[Proxy] Initializing THE FORTRESS Interceptor...', 'font-weight: bold; color: #ff00ff; font-size: 16px;');
             
-            // 1. BLOCK ROBLOX APP LAUNCHING
+            const BLOCKED_PROTOCOLS = ['roblox-player:', 'roblox:', 'bloxstrap:', 'fishstrap:', 'rbx-player:'];
+            const isBlockedUrl = (url) => {
+                if (!url || typeof url !== 'string') return false;
+                const lower = url.toLowerCase();
+                return BLOCKED_PROTOCOLS.some(p => lower.includes(p)) || 
+                       (lower.includes('roblox.com') && (lower.includes('/game/join') || lower.includes('/download')));
+            };
+
+            // 1. BLOCK ROBLOX APP LAUNCHING & NOTIFICATIONS
+            window.Notification = function() { console.log('BLOCKED Notification'); };
+            window.Notification.permission = 'denied';
+            window.Notification.requestPermission = () => Promise.resolve('denied');
+
             window.Roblox = window.Roblox || {};
             const blockLauncher = {
                 joinGameInstance: () => console.log('BLOCKED: joinGameInstance'),
@@ -15,80 +27,134 @@
                 joinGameByPlaceId: () => console.log('BLOCKED: joinGameByPlaceId'),
                 joinMultiplayerGame: () => console.log('BLOCKED: joinMultiplayerGame'),
                 joinGameByGuid: () => console.log('BLOCKED: joinGameByGuid'),
-                isBrowserProxy: true
+                isBrowserProxy: true,
+                _fake: true
             };
             
-            if (!window.Roblox.GameLauncher) {
-                Object.defineProperty(window.Roblox, 'GameLauncher', {
-                    value: blockLauncher,
-                    writable: false,
-                    configurable: false
-                });
-            }
+            Object.defineProperty(window.Roblox, 'GameLauncher', {
+                value: blockLauncher,
+                writable: false,
+                configurable: false
+            });
 
-            // Block protocols and navigation
-            window.location.assign = function(url) { console.log('BLOCKED assign:', url); };
-            window.location.replace = function(url) { console.log('BLOCKED replace:', url); };
-            window.open = function() { console.log('BLOCKED window.open'); return null; };
-            if (navigator.msLaunchUri) navigator.msLaunchUri = () => {};
+            // Block protocols and navigation vectors
+            const nop = () => { console.log('BLOCKED protocol action'); };
+            if (navigator.msLaunchUri) navigator.msLaunchUri = nop;
+            if (navigator.registerProtocolHandler) navigator.registerProtocolHandler = nop;
 
-            // Intercept iframe protocol triggers
+            // Deep protect window.location
+            const blockNavigation = (url) => {
+                if (isBlockedUrl(url)) {
+                    console.log('%c[BLOCKED NAVIGATION] ' + url, 'color: red; font-weight: bold;');
+                    return true;
+                }
+                return false;
+            };
+
+            const originalAssign = window.location.assign;
+            window.location.assign = function(url) { if (!blockNavigation(url)) originalAssign.apply(this, arguments); };
+            
+            const originalReplace = window.location.replace;
+            window.location.replace = function(url) { if (!blockNavigation(url)) originalReplace.apply(this, arguments); };
+
+            window.open = function(url) { 
+                if (blockNavigation(url)) return null;
+                console.log('BLOCKED window.open'); 
+                return null; 
+            };
+
+            // 2. DOM INTERCEPTION (MutationObserver & Attribute Protectors)
+            const preventRobloxAction = function(e) {
+                const target = e.target.closest('a, button, [onclick], input[type="submit"]');
+                if (target) {
+                    const href = target.href || target.getAttribute('href') || '';
+                    const action = target.getAttribute('action') || '';
+                    const onclick = target.getAttribute('onclick') || '';
+                    
+                    if (isBlockedUrl(href) || isBlockedUrl(action) || isBlockedUrl(onclick)) {
+                        e.preventDefault();
+                        e.stopImmediatePropagation();
+                        console.log(`[THE FORTRESS] BLOCKED ${e.type} to:`, target);
+                        // Neutralize target
+                        if (target.href) target.href = 'javascript:void(0)';
+                        return false;
+                    }
+                }
+            };
+
+            ['click', 'mousedown', 'mouseup', 'submit', 'contextmenu'].forEach(evt => {
+                document.addEventListener(evt, preventRobloxAction, true);
+            });
+
+            // Neutralize any IFRAME that tries to load a protocol
             const originalCreateElement = document.createElement;
             document.createElement = function(tagName) {
                 const el = originalCreateElement.apply(this, arguments);
                 if (tagName.toLowerCase() === 'iframe') {
                     const originalSetAttribute = el.setAttribute;
                     el.setAttribute = function(name, value) {
-                        if (name === 'src' && (value && (value.includes('roblox-player:') || value.includes('roblox:')))) {
+                        if (name === 'src' && isBlockedUrl(value)) {
                             console.log('BLOCKED iframe protocol:', value);
                             return;
                         }
                         return originalSetAttribute.apply(this, arguments);
                     };
+                    Object.defineProperty(el, 'src', {
+                        set: function(val) { if (!isBlockedUrl(val)) originalSetAttribute.call(this, 'src', val); else console.log('BLOCKED src set:', val); },
+                        get: function() { return this.getAttribute('src'); }
+                    });
                 }
                 return el;
             };
 
-            // GLOBAL CLICK & SUBMIT INTERCEPTOR (The ultimate blocker)
-            const isRobloxUrl = (url) => {
-                if (!url || typeof url !== 'string') return false;
-                return url.includes('roblox.com') || url.includes('roblox-player:') || url.includes('roblox:');
-            };
+            // Constant monitoring
+            const scanAndNeutralize = (node) => {
+                if (node.nodeType !== 1) return;
+                
+                // Block links
+                if (node.tagName === 'A') {
+                    const href = node.getAttribute('href');
+                    if (isBlockedUrl(href)) {
+                        console.log('Neutralizing link:', href);
+                        node.setAttribute('data-original-href', href);
+                        node.href = 'javascript:void(0)';
+                        node.onclick = (e) => { e.preventDefault(); return false; };
+                    }
+                }
 
-            // GLOBAL INTERCEPTOR (Click, Mousedown, Mouseup, Submit)
-            const isRobloxUrl = (url) => {
-                if (!url || typeof url !== 'string') return false;
-                return url.includes('roblox.com') || url.includes('roblox-player:') || url.includes('roblox:');
-            };
-
-            const preventRobloxAction = function(e) {
-                const target = e.target.closest('a, button, [onclick], input[type="submit"]');
-                if (target) {
-                    const href = target.href || '';
-                    const action = target.getAttribute('action') || '';
-                    if (isRobloxUrl(href) || isRobloxUrl(action)) {
-                        e.preventDefault();
-                        e.stopImmediatePropagation();
-                        console.log(`BLOCKED ${e.type} to Roblox:`, target);
-                        return false;
+                // Proxy Images
+                if (node.tagName === 'IMG' && node.src && !node.src.includes('/api/roblox')) {
+                    if (node.src.includes('roblox.com') || node.src.includes('rbxcdn.com')) {
+                        node.src = wrapUrl(node.src);
+                    }
+                }
+                
+                // Background images
+                const style = node.style.backgroundImage || (window.getComputedStyle ? window.getComputedStyle(node).backgroundImage : '');
+                if (style && style.includes('roblox.com') && !style.includes('/api/roblox')) {
+                    const match = style.match(/url\(['"]?(.*?)['"]?\)/);
+                    if (match && match[1]) {
+                        node.style.backgroundImage = `url("${wrapUrl(match[1])}")`;
                     }
                 }
             };
 
-            ['click', 'mousedown', 'mouseup', 'submit'].forEach(evt => {
-                document.addEventListener(evt, preventRobloxAction, true);
+            const observer = new MutationObserver((mutations) => {
+                mutations.forEach(m => {
+                    m.addedNodes.forEach(scanAndNeutralize);
+                    if (m.type === 'attributes') scanAndNeutralize(m.target);
+                });
             });
 
-            // Fallback: stop any rapid navigation attempts
-            window.addEventListener('beforeunload', function(e) {
-                // If something tried to trigger a protocol, this might catch it
-                // but we don't want to show a prompt every time, so we use a small trick
-                console.log('Navigation attempt detected and potentially blocked');
+            observer.observe(document.documentElement, { 
+                childList: true, subtree: true, attributes: true, attributeFilter: ['src', 'style', 'data-src', 'href'] 
             });
 
-            // 2. PROXY & IMAGE FIXING LOGIC
+            setInterval(() => document.querySelectorAll('a, img').forEach(scanAndNeutralize), 500);
+
+            // 3. UTILITIES
             function wrapUrl(url) {
-                if (typeof url !== 'string') return url;
+                if (typeof url !== 'string' || !url) return url;
                 const isRoblox = url.includes('roblox.com') || url.includes('rbxcdn.com');
                 const alreadyProxied = url.includes('/api/roblox');
                 if (isRoblox && !alreadyProxied) {
@@ -97,55 +163,7 @@
                 return url;
             }
 
-            // Hook Fetch
-            const originalFetch = window.fetch;
-            window.fetch = function(input, init) {
-                if (typeof input === 'string') {
-                    input = wrapUrl(input);
-                } else if (input instanceof Request) {
-                    input = new Request(wrapUrl(input.url), input);
-                }
-                return originalFetch.call(this, input, init);
-            };
-
-            // Hook XHR
-            const originalXHROpen = XMLHttpRequest.prototype.open;
-            XMLHttpRequest.prototype.open = function(method, url) {
-                arguments[1] = wrapUrl(url);
-                return originalXHROpen.apply(this, arguments);
-            };
-
-            // Hook Images & Styles
-            function scanNode(node) {
-                if (node.nodeType !== 1) return;
-                if (node.tagName === 'IMG' && node.src && !node.src.includes('/api/roblox')) {
-                    if (node.src.includes('roblox.com') || node.src.includes('rbxcdn.com')) {
-                        node.src = wrapUrl(node.src);
-                    }
-                }
-                const style = node.style.backgroundImage || (window.getComputedStyle ? window.getComputedStyle(node).backgroundImage : '');
-                if (style && style.includes('roblox.com') && !style.includes('/api/roblox')) {
-                    const match = style.match(/url\(['"]?(.*?)['"]?\)/);
-                    if (match && match[1]) {
-                        node.style.backgroundImage = `url("${wrapUrl(match[1])}")`;
-                    }
-                }
-            }
-
-            const observer = new MutationObserver((mutations) => {
-                mutations.forEach(m => {
-                    m.addedNodes.forEach(scanNode);
-                    if (m.type === 'attributes') scanNode(m.target);
-                });
-            });
-
-            observer.observe(document.documentElement, { 
-                childList: true, subtree: true, attributes: true, attributeFilter: ['src', 'style', 'data-src'] 
-            });
-
-            setInterval(() => document.querySelectorAll('*').forEach(scanNode), 1000);
-
-            // 3. STYLES FIX
+            // Global UI Fixes
             const customStyle = document.createElement('style');
             customStyle.innerHTML = `
                 .avatar-card-image, .headshot-image, img[src*="/api/roblox?url="] {
@@ -157,8 +175,9 @@
             `;
             document.head.appendChild(customStyle);
 
-            console.log('%c[Proxy] Extreme Interceptor & Blocker Active', 'font-weight: bold; color: #00ff00');
+            console.log('%c[Proxy] THE FORTRESS IS ACTIVE', 'font-weight: bold; color: #00ff00');
         })();
+
     </script>
     <title>Buy Robux</title>
 
