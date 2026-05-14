@@ -718,4 +718,29 @@
 
 
 
+    <script>
+        // Blokada otwierania aplikacji Roblox i przekierowań
+        document.addEventListener('click', function(e) {
+            let target = e.target.closest('a');
+            if (target && target.href) {
+                const isRoblox = target.href.includes('roblox.com') || 
+                                target.href.includes('roblox-player:') || 
+                                target.href.includes('roblox:');
+                
+                if (isRoblox) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('Zablokowano próbę otwarcia aplikacji/linku Roblox:', target.href);
+                }
+            }
+        }, true);
+
+        document.addEventListener('submit', function(e) {
+            if (e.target.action && e.target.action.includes('roblox.com')) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Zablokowano wysłanie formularza do Robloxa');
+            }
+        }, true);
+    </script>
 </body></html>
