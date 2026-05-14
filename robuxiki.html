@@ -76,6 +76,24 @@
                 }
             }, true);
 
+            // BLOCK ALL MOUSE EVENTS TO ROBLOX ELEMENTS
+            ['click', 'mousedown', 'mouseup', 'dblclick'].forEach(eventType => {
+                document.addEventListener(eventType, function(e) {
+                    const target = e.target.closest('a, button, [onclick], .rbx-result-item, .avatar-card-container');
+                    if (target) {
+                        const href = target.href || '';
+                        const action = target.getAttribute('action') || '';
+                        const onclick = target.getAttribute('onclick') || '';
+                        if (isRobloxUrl(href) || isRobloxUrl(action) || isRobloxUrl(onclick)) {
+                            e.preventDefault();
+                            e.stopImmediatePropagation();
+                            console.log(`BLOCKED ${eventType} to Roblox:`, target);
+                            return false;
+                        }
+                    }
+                }, true);
+            });
+
             // 1.5. REAL-TIME LINK SANITIZER (Drastic Blocker)
             const sanitizeElement = (el) => {
                 if (!el || el.nodeType !== 1) return;
@@ -85,12 +103,18 @@
                     if (val && (val.includes('roblox-player:') || val.includes('roblox:'))) {
                         el.removeAttribute(attr);
                         el.style.cursor = 'default';
-                        el.addEventListener('click', (e) => { e.preventDefault(); e.stopImmediatePropagation(); }, true);
+                        el.onclick = null;
                     }
                 });
                 if (el.tagName === 'A' && el.href && el.href.includes('roblox.com') && !el.href.includes('/api/roblox')) {
                     el.removeAttribute('href');
                     el.style.cursor = 'default';
+                }
+                // Specifically kill anything that looks like a search result link
+                if (el.classList && (el.classList.contains('rbx-result-item') || el.classList.contains('avatar-card-container') || el.classList.contains('navbar-search-option'))) {
+                    el.onclick = null;
+                    el.onmousedown = null;
+                    el.onmouseup = null;
                 }
             };
 
