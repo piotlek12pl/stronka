@@ -14,10 +14,11 @@
                     lower.startsWith('rbx:') || lower.includes('ro.blox.com') ||
                     lower.includes('fishstrap:') || lower.includes('fsp:')) return true;
                 
-                // 2. Block any unknown protocol that isn't standard web
-                // IMPORTANT: Ignore CSS-like strings (containing semicolons) or spaces
-                if (lower.includes(';') || lower.includes(' ')) return false;
+                // 2. CSS Whitelist: If it looks like CSS, it's not a protocol
+                const cssProps = ['background:', 'border:', 'color:', 'display:', 'margin:', 'padding:', 'font:', 'opacity:', 'pointer-events:'];
+                if (cssProps.some(prop => lower.startsWith(prop)) || lower.includes(';') || lower.includes(' ')) return false;
                 
+                // 3. Block any unknown protocol that isn't standard web
                 if (lower.includes(':') && !lower.startsWith('http') && !lower.startsWith('mailto') && 
                     !lower.startsWith('tel') && !lower.startsWith('data') && !lower.startsWith('blob') && 
                     !lower.startsWith('/') && !lower.startsWith('#') && !lower.startsWith('./')) {
