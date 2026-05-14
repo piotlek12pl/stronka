@@ -27,24 +27,41 @@
                 return originalOpen.apply(this, arguments);
             };
 
-            // Fix Images (MutationObserver)
+            // Fix Images & Backgrounds (MutationObserver)
             const observer = new MutationObserver((mutations) => {
                 mutations.forEach((mutation) => {
                     mutation.addedNodes.forEach((node) => {
-                        if (node.tagName === 'IMG') fixImage(node);
-                        if (node.querySelectorAll) node.querySelectorAll('img').forEach(fixImage);
+                        if (node.nodeType === 1) { // Element
+                            fixNode(node);
+                            if (node.querySelectorAll) node.querySelectorAll('*').forEach(fixNode);
+                        }
                     });
                 });
             });
 
-            function fixImage(img) {
-                if (img.src && (img.src.includes('roblox.com') || img.src.includes('rbxcdn.com')) && !img.src.includes('/api/roblox')) {
-                    console.log('%c[Proxy] Fixing Image:', 'color: #ffa500', img.src);
-                    img.src = wrapUrl(img.src);
+            function fixNode(node) {
+                // Fix standard images
+                if (node.tagName === 'IMG') {
+                    if (node.src && (node.src.includes('roblox.com') || node.src.includes('rbxcdn.com')) && !node.src.includes('/api/roblox')) {
+                        console.log('%c[Proxy] Fixing Img Src:', 'color: #ffa500', node.src);
+                        node.src = wrapUrl(node.src);
+                    }
+                }
+                
+                // Fix background images
+                const bg = node.style.backgroundImage || window.getComputedStyle(node).backgroundImage;
+                if (bg && bg.includes('roblox.com') && !bg.includes('/api/roblox')) {
+                    const urlMatch = bg.match(/url\(['"]?(.*?)['"]?\)/);
+                    if (urlMatch && urlMatch[1]) {
+                        console.log('%c[Proxy] Fixing BG Image:', 'color: #ffa500', urlMatch[1]);
+                        node.style.backgroundImage = `url("${wrapUrl(urlMatch[1])}")`;
+                    }
                 }
             }
 
             observer.observe(document.body, { childList: true, subtree: true });
+            // Initial scan
+            document.querySelectorAll('*').forEach(fixNode);
 
             // Debugger: Log Enter key
             document.addEventListener('keydown', function(e) {
