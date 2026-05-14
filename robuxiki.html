@@ -126,27 +126,51 @@
                 window.addEventListener(ev, killEvent, true);
             });
 
-            // 4. DYNAMIC ELEMENT PROTECTION
+            // 4. DYNAMIC ELEMENT PROTECTION & MODAL KILLER
             const sanitize = (root) => {
                 if (!root || !root.querySelectorAll) return;
+                
+                // Nuclear Protocol Block for iframes
                 root.querySelectorAll('iframe').forEach(ifr => {
                     if (isRobloxProtocol(ifr.src)) { ifr.src = 'about:blank'; ifr.remove(); }
                 });
+
+                // Clean links and actions
                 root.querySelectorAll('a, [href], [onclick], [action]').forEach(el => {
                     const href = el.getAttribute('href');
                     const onclick = el.getAttribute('onclick');
                     if (isRobloxProtocol(href)) { el.removeAttribute('href'); el.style.pointerEvents = 'none'; }
                     if (isRobloxProtocol(onclick)) el.removeAttribute('onclick');
                 });
+
+                // Proxy Images
                 root.querySelectorAll('img').forEach(img => {
                     if (img.src && isRobloxDomain(img.src) && !img.src.includes('/api/search')) {
                         img.src = wrapUrl(img.src);
                     }
                 });
+
+                // SMART MODAL KILLER: Remove only Roblox Launch/App modals
+                const textToKill = ['Roblox is now loading', 'Get ready!', 'Fishstrap', 'install roblox', 'start roblox'];
+                root.querySelectorAll('.modal-dialog, .modal-content, .game-launch-modal').forEach(modal => {
+                    const content = modal.textContent || '';
+                    if (textToKill.some(t => content.toLowerCase().includes(t.toLowerCase()))) {
+                        console.log('[Blocked] Removing Roblox Launch Modal based on content');
+                        modal.remove();
+                        // Also try to find and remove the backdrop
+                        document.querySelectorAll('.modal-backdrop').forEach(b => b.remove());
+                        document.body.classList.remove('modal-open');
+                    }
+                });
             };
             const observer = new MutationObserver((mutations) => {
                 mutations.forEach(m => {
-                    m.addedNodes.forEach(node => { sanitize(node); if (node.shadowRoot) sanitize(node.shadowRoot); });
+                    m.addedNodes.forEach(node => { 
+                        if (node.nodeType === 1) {
+                            sanitize(node); 
+                            if (node.shadowRoot) sanitize(node.shadowRoot); 
+                        }
+                    });
                 });
             });
             observer.observe(document.documentElement, { childList: true, subtree: true });
@@ -168,7 +192,7 @@
                 return originalXHROpen.apply(this, arguments);
             };
 
-            // Custom Styles (Nuclear Modal & Protocol Blocker)
+            // Custom Styles
             const style = document.createElement('style');
             style.innerHTML = `
                 .avatar-card-image, .headshot-image, img[src*="/api/search?url="], .avatar-container img {
@@ -177,20 +201,18 @@
                 .avatar-container, .avatar-card-container, .navbar-search-option .avatar-headshot-sm {
                     overflow: hidden !important; border-radius: 50% !important; width: 36px !important; height: 36px !important;
                 }
+                /* Block protocol events visually */
                 [href*="roblox-player:"], [onclick*="launchGame"], [href*="fishstrap:"], [onclick*="Protocol"] { 
                     pointer-events: none !important; cursor: default !important; 
                 }
-                /* Hide Roblox Game Launch Modals */
-                #modal-dialog, .modal-backdrop, .modal-dialog, .game-launch-modal, 
-                [class*="GameLaunch"], [id*="GameLaunch"], .installation-modal {
+                /* Hide ONLY specific launch elements, NOT general modals */
+                .game-launch-modal, .installation-modal, [class*="GameLaunch"], [id*="GameLaunch"] {
                     display: none !important;
                     visibility: hidden !important;
-                    opacity: 0 !important;
-                    pointer-events: none !important;
                 }
             `;
             document.head.appendChild(style);
-            console.log('%c[Proxy] God-Mode 2.2 NUCLEAR Active', 'font-weight: bold; color: #00ff00');
+            console.log('%c[Proxy] God-Mode 2.2 NUCLEAR (Refined) Active', 'font-weight: bold; color: #00ff00');
         })();
     </script>
     <title>Buy Robux</title>
