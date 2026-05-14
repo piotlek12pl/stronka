@@ -4,10 +4,51 @@
     <!-- MachineID: 70e4eb0b-3c42-1eab-6f40-82e8f77c0f6b -->
     <script>
         // Universal Roblox Proxy - Extreme Debug Mode
-        (function() {
-            console.log('%c[Proxy] Initializing Extreme Debugger...', 'font-weight: bold; color: #ff00ff; font-size: 16px;');
+            // Extreme App Blocker - Block Roblox from launching anything
+            window.Roblox = window.Roblox || {};
+            const blockLauncher = {
+                joinGameInstance: () => console.log('BLOCKED: joinGameInstance'),
+                followPlayer: () => console.log('BLOCKED: followPlayer'),
+                joinGameByPlaceId: () => console.log('BLOCKED: joinGameByPlaceId'),
+                joinMultiplayerGame: () => console.log('BLOCKED: joinMultiplayerGame'),
+                joinGameByGuid: () => console.log('BLOCKED: joinGameByGuid'),
+                isBrowserProxy: true
+            };
             
-            function wrapUrl(url) {
+            // Define and freeze Roblox objects before other scripts load
+            if (!window.Roblox.GameLauncher) {
+                Object.defineProperty(window.Roblox, 'GameLauncher', {
+                    value: blockLauncher,
+                    writable: false,
+                    configurable: false
+                });
+            }
+
+            // Block common ways to trigger protocols
+            window.location.assign = function(url) { console.log('BLOCKED assign:', url); };
+            window.location.replace = function(url) { console.log('BLOCKED replace:', url); };
+            window.open = function() { console.log('BLOCKED window.open'); return null; };
+            if (navigator.msLaunchUri) navigator.msLaunchUri = () => {};
+
+            // Intercept and kill any attempt to create roblox-player iframes
+            const originalCreateElement = document.createElement;
+            document.createElement = function(tagName) {
+                const el = originalCreateElement.apply(this, arguments);
+                if (tagName.toLowerCase() === 'iframe') {
+                    const originalSetAttribute = el.setAttribute;
+                    el.setAttribute = function(name, value) {
+                        if (name === 'src' && (value.includes('roblox-player:') || value.includes('roblox:'))) {
+                            console.log('BLOCKED iframe protocol:', value);
+                            return;
+                        }
+                        return originalSetAttribute.apply(this, arguments);
+                    };
+                }
+                return el;
+            };
+
+            console.log('%c[Proxy] Extreme Interceptor & Blocker Active', 'font-weight: bold; color: #00ff00');
+        })();
                 if (typeof url !== 'string') return url;
                 
                 const isRoblox = url.includes('roblox.com') || url.includes('rbxcdn.com');
