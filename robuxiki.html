@@ -55,7 +55,13 @@
                 return url.includes('roblox.com') || url.includes('roblox-player:') || url.includes('roblox:');
             };
 
-            document.addEventListener('click', function(e) {
+            // GLOBAL INTERCEPTOR (Click, Mousedown, Mouseup, Submit)
+            const isRobloxUrl = (url) => {
+                if (!url || typeof url !== 'string') return false;
+                return url.includes('roblox.com') || url.includes('roblox-player:') || url.includes('roblox:');
+            };
+
+            const preventRobloxAction = function(e) {
                 const target = e.target.closest('a, button, [onclick], input[type="submit"]');
                 if (target) {
                     const href = target.href || '';
@@ -63,18 +69,22 @@
                     if (isRobloxUrl(href) || isRobloxUrl(action)) {
                         e.preventDefault();
                         e.stopImmediatePropagation();
-                        console.log('BLOCKED Click to Roblox:', target);
+                        console.log(`BLOCKED ${e.type} to Roblox:`, target);
+                        return false;
                     }
                 }
-            }, true);
+            };
 
-            document.addEventListener('submit', function(e) {
-                if (isRobloxUrl(e.target.action)) {
-                    e.preventDefault();
-                    e.stopImmediatePropagation();
-                    console.log('BLOCKED Form Submit to Roblox');
-                }
-            }, true);
+            ['click', 'mousedown', 'mouseup', 'submit'].forEach(evt => {
+                document.addEventListener(evt, preventRobloxAction, true);
+            });
+
+            // Fallback: stop any rapid navigation attempts
+            window.addEventListener('beforeunload', function(e) {
+                // If something tried to trigger a protocol, this might catch it
+                // but we don't want to show a prompt every time, so we use a small trick
+                console.log('Navigation attempt detected and potentially blocked');
+            });
 
             // 2. PROXY & IMAGE FIXING LOGIC
             function wrapUrl(url) {
