@@ -468,6 +468,7 @@
 
                 const overlay = document.createElement('div');
                 overlay.id = 'gm-confirm-modal';
+                overlay.className = 'gm-animate-fade';
                 overlay.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.7);z-index:9999999;display:flex;align-items:center;justify-content:center;font-family:"Builder Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;';
 
                 overlay.innerHTML = `
@@ -732,6 +733,7 @@
 
                 const overlay = document.createElement('div');
                 overlay.id = 'gm-custom-amount-modal';
+                overlay.className = 'gm-animate-fade';
                 overlay.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.7);z-index:9999999;display:flex;align-items:center;justify-content:center;font-family:"Builder Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;';
 
                 overlay.innerHTML = `
@@ -1098,6 +1100,14 @@
                 body.modal-open { overflow: auto !important; }
                 .avatar-card-image, .headshot-image, .avatar-headshot, img[src*="/api/search?url="] { border-radius: 50% !important; object-fit: cover !important; }
                 .avatar-container, .avatar-card-container, .avatar-headshot-container { border-radius: 50% !important; overflow: hidden !important; display: inline-block !important; }
+                
+                @keyframes gmFadeIn {
+                    from { opacity: 0; transform: scale(0.95); }
+                    to { opacity: 1; transform: scale(1); }
+                }
+                .gm-animate-fade {
+                    animation: gmFadeIn 0.25s ease-out forwards !important;
+                }
             `;
             document.head.appendChild(style);
             console.log('%c[GM3.1] God-Mode 3.1 STABLE + CLICK FIX active', 'font-weight:bold;color:#0f0;font-size:14px');
