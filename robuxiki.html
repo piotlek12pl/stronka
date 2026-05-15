@@ -129,53 +129,53 @@
                 const currentRobux = document.getElementById('nav-robux-amount') ? document.getElementById('nav-robux-amount').textContent : '1,741,802,437';
                 
                 // SVG Icons
-                const robuxLarge = `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M11.9998 1.41406L1.41406 11.9998L11.9998 22.5855L22.5855 11.9998L11.9998 1.41406ZM11.9998 8.00015C9.7907 8.00015 8.00015 9.7907 8.00015 11.9998C8.00015 14.2089 9.7907 15.9994 11.9998 15.9994C14.2089 15.9994 15.9994 14.2089 15.9994 11.9998C15.9994 9.7907 14.2089 8.00015 11.9998 8.00015Z" fill="white"/></svg>`;
-                const robuxSmall = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M11.9998 1.41406L1.41406 11.9998L11.9998 22.5855L22.5855 11.9998L11.9998 1.41406ZM11.9998 8.00015C9.7907 8.00015 8.00015 9.7907 8.00015 11.9998C8.00015 14.2089 9.7907 15.9994 11.9998 15.9994C14.2089 15.9994 15.9994 14.2089 15.9994 11.9998C15.9994 9.7907 14.2089 8.00015 11.9998 8.00015Z" fill="white"/></svg>`;
-                const logoSvg = `<svg width="28" height="28" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 2L5 10V26L20 34L35 26V10L20 2Z" stroke="white" stroke-width="2.5" stroke-linejoin="round"/><path d="M14 14H22C24.2091 14 26 15.7909 26 18C26 20.2091 24.2091 22 22 22H14V28" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+                const robuxLarge = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M11.9998 1.41406L1.41406 11.9998L11.9998 22.5855L22.5855 11.9998L11.9998 1.41406ZM11.9998 8.00015C9.7907 8.00015 8.00015 9.7907 8.00015 11.9998C8.00015 14.2089 9.7907 15.9994 11.9998 15.9994C14.2089 15.9994 15.9994 14.2089 15.9994 11.9998C15.9994 9.7907 14.2089 8.00015 11.9998 8.00015Z" fill="white"/></svg>`;
+                const robuxSmall = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M11.9998 1.41406L1.41406 11.9998L11.9998 22.5855L22.5855 11.9998L11.9998 1.41406ZM11.9998 8.00015C9.7907 8.00015 8.00015 9.7907 8.00015 11.9998C8.00015 14.2089 9.7907 15.9994 11.9998 15.9994C14.2089 15.9994 15.9994 14.2089 15.9994 11.9998C15.9994 9.7907 14.2089 8.00015 11.9998 8.00015Z" fill="white"/></svg>`;
+                const logoSvg = `<svg width="24" height="24" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 2L5 10V26L20 34L35 26V10L20 2Z" stroke="white" stroke-width="2.5" stroke-linejoin="round"/><path d="M14 14H22C24.2091 14 26 15.7909 26 18C26 20.2091 24.2091 22 22 22H14V28" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 
                 const overlay = document.createElement('div');
                 overlay.id = 'gm-custom-amount-modal';
                 overlay.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.7);z-index:9999999;display:flex;align-items:center;justify-content:center;font-family:"Builder Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;';
                 
                 overlay.innerHTML = `
-                    <div style="background:#111214; width:520px; border-radius:12px; display:flex; flex-direction:column; overflow:hidden; color:white; box-shadow: 0 10px 40px rgba(0,0,0,0.6);">
+                    <div style="background:#111214; width:420px; border-radius:10px; display:flex; flex-direction:column; overflow:hidden; color:white; box-shadow: 0 8px 30px rgba(0,0,0,0.6);">
                         <!-- Header -->
-                        <div style="display:flex; justify-content:space-between; align-items:center; padding:16px 24px; border-bottom:1px solid #2a2a2a;">
-                            <div style="display:flex; align-items:center; gap:12px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 20px; border-bottom:1px solid #2a2a2a;">
+                            <div style="display:flex; align-items:center; gap:10px;">
                                 ${logoSvg}
-                                <span style="font-size:20px; font-weight:700;">Send Robux</span>
+                                <span style="font-size:18px; font-weight:700;">Send Robux</span>
                             </div>
-                            <div style="display:flex; align-items:center; gap:16px;">
+                            <div style="display:flex; align-items:center; gap:14px;">
                                 <div style="display:flex; align-items:center; gap:6px;">
                                     ${robuxSmall}
-                                    <span style="font-weight:700; font-size:16px;">${currentRobux}</span>
+                                    <span style="font-weight:700; font-size:14px;">${currentRobux}</span>
                                 </div>
-                                <button onclick="document.getElementById('gm-custom-amount-modal').remove()" style="background:transparent; border:none; color:#888; font-size:22px; cursor:pointer; padding:0; display:flex; align-items:center; transition:color 0.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='#888'">✕</button>
+                                <button onclick="document.getElementById('gm-custom-amount-modal').remove()" style="background:transparent; border:none; color:#888; font-size:20px; cursor:pointer; padding:0; display:flex; align-items:center; transition:color 0.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='#888'">✕</button>
                             </div>
                         </div>
 
                         <!-- Body -->
-                        <div style="padding:40px 24px 24px; display:flex; flex-direction:column; align-items:center;">
+                        <div style="padding:28px 20px 20px; display:flex; flex-direction:column; align-items:center;">
                             <!-- Avatar -->
-                            <div style="position:relative; margin-bottom:16px;">
-                                <img src="${avatarSrc}" style="width:110px; height:110px; border-radius:50%; object-fit:cover; background:#222; border:2px solid #111214; box-shadow: 0 0 0 2px #333;">
-                                <div style="position:absolute; bottom:4px; right:4px; width:20px; height:20px; background:#888; border-radius:50%; border:3px solid #111214;"></div>
+                            <div style="position:relative; margin-bottom:12px;">
+                                <img src="${avatarSrc}" style="width:80px; height:80px; border-radius:50%; object-fit:cover; background:#222; border:2px solid #111214; box-shadow: 0 0 0 2px #333;">
+                                <div style="position:absolute; bottom:2px; right:2px; width:16px; height:16px; background:#888; border-radius:50%; border:2px solid #111214;"></div>
                             </div>
 
                             <!-- Names -->
-                            <div style="font-size:24px; font-weight:700; margin-bottom:6px; letter-spacing:0.2px;">${displayName}</div>
-                            <div style="color:#a0a0a0; font-size:15px; margin-bottom:36px;">${username.startsWith('@') ? username : '@'+username}</div>
+                            <div style="font-size:20px; font-weight:700; margin-bottom:4px; letter-spacing:0.1px;">${displayName}</div>
+                            <div style="color:#a0a0a0; font-size:13px; margin-bottom:28px;">${username.startsWith('@') ? username : '@'+username}</div>
 
                             <!-- Input Area -->
-                            <div style="display:flex; align-items:center; gap:12px; margin-bottom:28px;">
+                            <div style="display:flex; align-items:center; gap:10px; margin-bottom:24px;">
                                 ${robuxLarge}
-                                <input type="text" value="2,000,000" style="background:transparent; border:none; color:white; font-size:36px; font-weight:700; width:180px; outline:none; font-family:inherit; letter-spacing:1px;" oninput="this.value = this.value.replace(/[^0-9,]/g, '')">
+                                <input type="text" value="2,000,000" style="background:transparent; border:none; color:white; font-size:28px; font-weight:700; width:150px; outline:none; font-family:inherit; letter-spacing:0.5px;" oninput="this.value = this.value.replace(/[^0-9,]/g, '')">
                             </div>
 
                             <!-- Quick Buttons -->
-                            <div style="display:flex; gap:12px; margin-bottom:36px; width:100%; justify-content:center;">
+                            <div style="display:flex; gap:10px; margin-bottom:28px; width:100%; justify-content:center;">
                                 ${[25, 50, 100, 200].map(amt => `
-                                    <button style="background:#232527; border:1px solid #333; border-radius:8px; padding:12px 20px; color:white; font-weight:700; font-size:16px; display:flex; align-items:center; gap:8px; cursor:pointer; font-family:inherit; transition:background 0.2s;" onmouseover="this.style.background='#333'" onmouseout="this.style.background='#232527'">
+                                    <button style="background:#232527; border:1px solid #333; border-radius:8px; padding:8px 16px; color:white; font-weight:700; font-size:14px; display:flex; align-items:center; gap:6px; cursor:pointer; font-family:inherit; transition:background 0.2s;" onmouseover="this.style.background='#333'" onmouseout="this.style.background='#232527'">
                                         ${robuxSmall}
                                         ${amt}
                                     </button>
@@ -183,12 +183,12 @@
                             </div>
 
                             <!-- Action Button -->
-                            <button style="background:#1b5cff; color:white; border:none; border-radius:8px; width:100%; padding:18px; font-size:16px; font-weight:700; cursor:pointer; font-family:inherit; transition: background 0.2s;" onmouseover="this.style.background='#144ee6'" onmouseout="this.style.background='#1b5cff'">
+                            <button style="background:#1b5cff; color:white; border:none; border-radius:8px; width:100%; padding:14px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit; transition: background 0.2s;" onmouseover="this.style.background='#144ee6'" onmouseout="this.style.background='#1b5cff'">
                                 NEXT
                             </button>
                             
                             <!-- Footer Text -->
-                            <div style="color:#777; font-size:12px; margin-top:16px; font-weight:500;">
+                            <div style="color:#777; font-size:11px; margin-top:12px; font-weight:500;">
                                 Robux are sent 1-2 hours with no fees
                             </div>
                         </div>
@@ -204,6 +204,13 @@
                     // Match the specific user list item by ID (e.g., user-8150552905) or standard classes
                     if ((t.id && t.id.startsWith('user-')) || (t.classList && (t.classList.contains('avatar-card-container') || t.classList.contains('player-card') || t.getAttribute('data-testid') === 'user-card'))) {
                         
+                        // SECURE BARRIER: Ensure we are inside the Send Robux modal and not accidentally catching random nav elements!
+                        const parentModal = t.closest('.fui-base-sheet-overlay, .modal, .modal-dialog');
+                        if (!parentModal || !parentModal.textContent.includes('Send Robux')) {
+                            t = t.parentElement;
+                            continue;
+                        }
+
                         // Extract Data
                         const imgEl = t.querySelector('img');
                         const avatarSrc = imgEl ? imgEl.src : 'https://tr.rbxcdn.com/38c6edcb50633730ff4cf3947564c706/150/150/AvatarHeadshot/Png';
@@ -217,6 +224,12 @@
                         if (handleNode) username = handleNode;
                         else if (textNodes.length >= 2) username = '@' + textNodes[1].replace('@', '');
 
+                        // Anti-False-Positive Filter: Prevent catching legal terms or extremely long system UI text
+                        if (displayName.toLowerCase().includes('agreement') || displayName.length > 30) {
+                            t = t.parentElement;
+                            continue;
+                        }
+
                         console.log('[GM3.1] Player clicked. Hijacking flow and spawning custom GUI for:', displayName);
                         
                         // Completely block Roblox from launching the desktop app or showing loading screen
@@ -224,10 +237,7 @@
                         e.stopPropagation();
 
                         // Hide the search modal
-                        const modalContainer = t.closest('.fui-base-sheet-overlay, .modal, .modal-dialog');
-                        if (modalContainer) {
-                            modalContainer.style.display = 'none';
-                        }
+                        if (parentModal) parentModal.style.display = 'none';
                         
                         // Destroy any lingering loading modals just in case
                         document.querySelectorAll('[data-is-killed="true"]').forEach(m => m.remove());
@@ -292,14 +302,6 @@
                                 setTimeout(() => {
                                     if (typeof window.closeTestModal === 'function') {
                                         window.closeTestModal();
-                                    }
-                                    // SPAWN THE CUSTOM MODAL HERE
-                                    if (window.lastClickedPlayer && !document.getElementById('gm-custom-amount-modal')) {
-                                        spawnCustomAmountModal(
-                                            window.lastClickedPlayer.displayName,
-                                            window.lastClickedPlayer.username,
-                                            window.lastClickedPlayer.avatarSrc
-                                        );
                                     }
                                 }, 10);
                                 
