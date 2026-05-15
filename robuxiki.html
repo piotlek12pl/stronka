@@ -144,11 +144,9 @@
                             const isProtected = pText.includes('Send') || pText.includes('Amount') || pText.includes('Confirm') || pText.includes('Robux') || (parent.querySelector && parent.querySelector('[data-section-type*="TRANSFERS"]'));
                             
                             if (isModal && !isProtected) {
-                                console.log('[GM3.3] Killing launch modal:', txt);
-                                parent.remove();
-                                document.querySelectorAll('.modal-backdrop, .modal-backdrop-bg, .rbx-backdrop').forEach(b => b.remove());
-                                document.body.classList.remove('modal-open');
-                                document.body.style.cssText = 'pointer-events: auto !important; overflow: auto !important;';
+                                console.log('[TEST-MODE] Replacing launch modal with white box');
+                                parent.innerHTML = '<div style="background:white; width:400px; height:250px; margin: 100px auto; border-radius: 15px; display: flex; align-items: center; justify-content: center; box-shadow: 0 20px 40px rgba(0,0,0,0.4); border: 2px solid #ddd;"></div>';
+                                // We keep the parent and backdrops so you can see the "box"
                                 return;
                             }
                             parent = parent.parentElement;
