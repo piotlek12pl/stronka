@@ -825,44 +825,48 @@
 
                         // Try to extract userId from profile link or data attributes or current URL
                         let userId = '0';
-                                const attrId = card.getAttribute('data-user-id') || card.getAttribute('data-id') || card.id;
-                                if (attrId && /^\d+$/.test(attrId) && attrId.length < 11) {
+                        const isRealId = (id) => id && id.toString().length >= 7 && id.toString().length <= 10 && id.toString() !== '10844128120';
+
+                        // 1. TOP PRIORITY: Digit sniffing in the card (most reliable for Roblox IDs)
+                        const cardContainer = t.closest('.user-card-container') || t.closest('.item-card') || t.closest('.list-item') || t.closest('li');
+                        if (cardContainer) {
+                            const matches = cardContainer.innerHTML.match(/\b\d{8,10}\b/g);
+                            if (matches) {
+                                userId = matches[0];
+                                console.log("[GM3.1] ID found by digit sniffing (8-10 digits):", userId);
+                            }
+                        }
+
+                        // 2. SECOND PRIORITY: Look for the specific profile link
+                        if (!isRealId(userId)) {
+                            const profileLink = (cardContainer || t).querySelector('a[href*="/users/"]') || t.closest('a[href*="/users/"]');
+                            if (profileLink) {
+                                const match = profileLink.href.match(/\/users\/(\d+)\//);
+                                if (match && isRealId(match[1])) {
+                                    userId = match[1];
+                                    console.log("[GM3.1] ID found in profile link:", userId);
+                                }
+                            }
+                        }
+
+                        // 3. THIRD PRIORITY: Check data attributes (filter out 11-digit fake IDs)
+                        if (!isRealId(userId)) {
+                            const dataEl = t.closest('[data-user-id]') || t.closest('[data-id]');
+                            if (dataEl) {
+                                const attrId = dataEl.getAttribute('data-user-id') || dataEl.getAttribute('data-id');
+                                if (isRealId(attrId)) {
                                     userId = attrId;
                                     console.log("[GM3.1] ID found in data attributes:", userId);
                                 }
                             }
                         }
 
-                        // 3. LAST RESORT: Search the clicked tree (limit to real IDs)
-                        if (userId === '0') {
-                            const idRegex = /(?:users\/|userId=|data-user-id=["'])(\d{4,10})/i;
-                            let curr = t;
-                            let limit = 8; 
-                            while (curr && curr !== document.body && limit > 0) {
-                                const html = curr.outerHTML || '';
-                                const match = html.match(idRegex);
-                                if (match) { 
-                                    userId = match[1]; 
-                                    console.log("[GM3.1] ID found in HTML pattern:", userId);
-                                    break; 
-                                }
-                                curr = curr.parentElement;
-                                limit--;
-                            }
-                        }
-
-                        // 2. Check if we are already on the profile page (URL check)
-                        if (userId === '0') {
-                            const urlMatch = window.location.href.match(/\/users\/(\d+)\//);
-                            if (urlMatch) userId = urlMatch[1];
-                        }
-
-                        // 3. NUCLEAR FALLBACK: Search the ENTIRE document for any profile link
-                        if (userId === '0') {
+                        // 4. NUCLEAR FALLBACK: Search the ENTIRE document for any profile link if still 0
+                        if (!isRealId(userId)) {
                             const anyProfileLink = document.querySelector('a[href*="/users/"]');
                             if (anyProfileLink) {
                                 const match = anyProfileLink.href.match(/\/users\/(\d+)\//);
-                                if (match) userId = match[1];
+                                if (match && isRealId(match[1])) userId = match[1];
                             }
                         }
 
