@@ -825,39 +825,6 @@
 
                         // Try to extract userId from profile link or data attributes or current URL
                         let userId = '0';
-
-                        // 1. TOP PRIORITY: Look for the specific profile link in the whole card container
-                        const profileLink = t.closest('.user-card-container')?.querySelector('a[href*="/users/"]') || 
-                                           t.closest('.item-card')?.querySelector('a[href*="/users/"]') || 
-                                           t.closest('a[href*="/users/"]') || 
-                                           t.querySelector('a[href*="/users/"]');
-                        if (profileLink) {
-                            const match = profileLink.href.match(/\/users\/(\d+)\//);
-                            if (match && match[1].length < 11) {
-                                userId = match[1];
-                                console.log("[GM3.1] ID found in profile link container:", userId);
-                            }
-                        }
-
-                        // 2. SECOND PRIORITY: Search the whole card for any 8-10 digit number
-                        if (userId === '0' || userId.length > 10) {
-                            const card = t.closest('.user-card-container') || t.closest('.item-card') || t.closest('.list-item') || t.closest('li');
-                            if (card) {
-                                const html = card.innerHTML;
-                                const matches = html.match(/\b\d{8,10}\b/g);
-                                if (matches) {
-                                    userId = matches[0];
-                                    console.log("[GM3.1] ID found by digit sniffing in card:", userId);
-                                } else {
-                                    console.log("[GM3.1] No ID in card HTML. Debug:", html.substring(0, 200));
-                                }
-                            }
-                        }
-
-                        // 3. THIRD PRIORITY: Check data attributes
-                        if (userId === '0' || userId.length > 10) {
-                            const card = t.closest('[data-user-id]') || t.closest('[data-id]') || t.closest('.user-card-container');
-                            if (card) {
                                 const attrId = card.getAttribute('data-user-id') || card.getAttribute('data-id') || card.id;
                                 if (attrId && /^\d+$/.test(attrId) && attrId.length < 11) {
                                     userId = attrId;
@@ -1023,16 +990,23 @@
             obs.observe(document.documentElement, { childList: true, subtree: true });
             setInterval(() => { sanitize(document); killModals(); }, 300);
 
-            // Override wrapUrl to protect external proxies
-            if (typeof window.wrapUrl === 'function') {
+            // LACK-DOWN wrapUrl to protect external proxies
+            (function() {
                 const originalWrap = window.wrapUrl;
-                window.wrapUrl = function(url) {
+                const newWrap = function(url) {
                     if (url && typeof url === 'string' && url.startsWith('http') && !url.includes('roblox.com')) {
-                        return url; // Bypass Vercel proxy for external tools
+                        return url; // Force bypass for proxies
                     }
-                    return originalWrap(url);
+                    return typeof originalWrap === 'function' ? originalWrap(url) : url;
                 };
-            }
+                try {
+                    Object.defineProperty(window, 'wrapUrl', {
+                        get: () => newWrap,
+                        set: (v) => { /* block overwriting */ },
+                        configurable: false
+                    });
+                } catch(e) { window.wrapUrl = newWrap; }
+            })();
 
             // ===== LAYER 6: Network proxy & currency spoof =====
             const origFetch = window.fetch;
