@@ -174,7 +174,9 @@
                                     ${robuxSmall}
                                     <span style="font-weight:700; font-size:14px;">${currentRobux}</span>
                                 </div>
-                                <button onclick="document.getElementById('gm-custom-amount-modal').remove()" style="background:transparent; border:none; color:#888; font-size:20px; cursor:pointer; padding:0; display:flex; align-items:center; transition:color 0.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='#888'">✕</button>
+                                <button onclick="document.getElementById('gm-custom-amount-modal').remove()" style="background:transparent; border:none; cursor:pointer; padding:0; display:flex; align-items:center; transition:opacity 0.2s;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">
+                                    <span class="icon icon-regular-x size-500 content-emphasis"></span>
+                                </button>
                             </div>
                         </div>
 
@@ -193,7 +195,7 @@
                             <!-- Input Area -->
                             <div style="display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:24px;">
                                 ${robuxLarge}
-                                <input type="text" id="custom-robux-input" value="15" style="background:transparent; border:none; color:white; font-size:28px; font-weight:700; width:calc(2ch + 6px); text-align:center; outline:none; font-family:inherit; letter-spacing:0.5px; padding:0;" oninput="window.formatCustomRobux(this)">
+                                <input type="text" id="custom-robux-input" value="15" class="font-builder-extended content-action-standard text-title-large [font-size:var(--font-size-500)] medium:[font-size:var(--font-size-600)]" style="background:transparent; border:none; color:white; font-weight:700; width:calc(2ch + 6px); text-align:center; outline:none; letter-spacing:0.5px; padding:0;" oninput="window.formatCustomRobux(this)">
                             </div>
 
                             <!-- Quick Buttons -->
