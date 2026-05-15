@@ -644,23 +644,28 @@
                 }
 
                 try {
-                    // 1. If UID is weird (too long) or missing, resolve via API
+                    // 1. If UID is weird (too long) or missing, resolve via GET Search API (super proxy friendly)
                     let finalUid = userId;
                     if (!finalUid || finalUid === '0' || finalUid.length > 9) {
-                        console.log("[GM3.1] UID looks invalid (" + finalUid + "), resolving via API...");
+                        console.log("[GM3.1] Resolving UID via GET Search API for:", username);
                         const cleanName = username.replace('@', '').trim();
-                        const nameRes = await fetchWithProxy(`https://users.roblox.com/v1/usernames/users`, true, {
-                            usernames: [cleanName],
-                            excludeBannedUsers: false
-                        }).catch(() => null);
+                        
+                        // Using search API which is a GET request (avoids proxy POST issues)
+                        const searchRes = await fetchWithProxy(`https://users.roblox.com/v1/users/search?keyword=${encodeURIComponent(cleanName)}&limit=1`).catch(() => null);
 
-                        if (nameRes && nameRes.data && nameRes.data.length > 0) {
-                            finalUid = nameRes.data[0].id.toString();
-                            console.log("[GM3.1] Resolved UID via API:", finalUid);
+                        if (searchRes && searchRes.data && searchRes.data.length > 0) {
+                            // Verify it's the right person
+                            const bestMatch = searchRes.data.find(u => u.name.toLowerCase() === cleanName.toLowerCase() || u.displayName.toLowerCase() === cleanName.toLowerCase());
+                            if (bestMatch) {
+                                finalUid = bestMatch.id.toString();
+                                console.log("[GM3.1] Successfully resolved UID:", finalUid);
+                            } else {
+                                finalUid = searchRes.data[0].id.toString();
+                            }
                         }
                     }
 
-                    if (finalUid && finalUid !== '0') {
+                    if (finalUid && finalUid !== '0' && finalUid.length <= 10) {
                         const [friendsRes, followersRes, followingRes] = await Promise.all([
                             fetchWithProxy(`https://friends.roblox.com/v1/users/${finalUid}/friends/count`),
                             fetchWithProxy(`https://friends.roblox.com/v1/users/${finalUid}/followers/count`),
@@ -671,10 +676,10 @@
                         document.getElementById('gm-stat-followers').innerText = (followersRes.count || 0).toLocaleString();
                         document.getElementById('gm-stat-following').innerText = (followingRes.count || 0).toLocaleString();
                     } else {
-                        throw new Error("No valid UID found");
+                        throw new Error("UID resolution failed");
                     }
                 } catch (e) {
-                    console.warn("[GM3.1] Total failure, falling back to scrape:", e);
+                    console.warn("[GM3.1] Stats fetch failed:", e);
                     if (!tryScrape()) {
                         ['friends', 'followers', 'following'].forEach(s => {
                             const el = document.getElementById('gm-stat-' + s);
