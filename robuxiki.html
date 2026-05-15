@@ -127,27 +127,27 @@
             // ===== LAYER 5: DOM sanitizer + Aggressive "Roblox is loading" modal killer =====
             const BAD_TEXT = ['roblox is now loading', 'get ready!', 'fishstrap', 'install roblox', 'starting roblox'];
             const killModals = () => {
-                // Target any element that might contain the forbidden text
+                const IGNORE = ['SCRIPT', 'STYLE', 'NOSCRIPT'];
                 document.querySelectorAll('body *').forEach(el => {
-                    if (el.children.length > 0) return; // only check leaf nodes (text containers)
+                    if (IGNORE.includes(el.tagName) || el.children.length > 0) return;
                     const txt = (el.textContent || '').toLowerCase();
                     if (BAD_TEXT.some(b => txt.includes(b))) {
-                        // Found bad text, now find the closest modal-like parent to remove the whole thing
                         let parent = el;
                         while (parent && parent !== document.body) {
-                            if (parent.classList && (
+                            const isModal = parent.classList && (
                                 parent.classList.contains('modal') || 
                                 parent.classList.contains('modal-dialog') ||
-                                parent.classList.contains('modal-content') ||
                                 Array.from(parent.classList).some(c => c.toLowerCase().includes('modal') || c.toLowerCase().includes('dialog'))
-                            )) {
-                                console.log('[GM3.1] Killing modal containing:', txt);
+                            );
+                            // Protection: NEVER remove the Send button or its containers
+                            const isProtected = parent.textContent.includes('Send') || (parent.querySelector && parent.querySelector('[data-section-type*="TRANSFERS"]'));
+                            
+                            if (isModal && !isProtected) {
+                                console.log('[GM3.2] Safely killing launch modal:', txt);
                                 parent.remove();
-                                // Aggressive backdrop and state cleanup
-                                document.querySelectorAll('.modal-backdrop, [class*="backdrop"], [class*="overlay"]').forEach(b => b.remove());
+                                document.querySelectorAll('.modal-backdrop, .modal-backdrop-bg').forEach(b => b.remove());
                                 document.body.classList.remove('modal-open');
-                                document.body.style.overflow = '';
-                                document.body.style.paddingRight = '';
+                                document.body.style.cssText = 'pointer-events: auto !important; overflow: auto !important;';
                                 return;
                             }
                             parent = parent.parentElement;
