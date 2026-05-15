@@ -126,6 +126,16 @@
 
             // ===== LAYER 5: DOM sanitizer + Aggressive "Roblox is loading" modal killer =====
             const BAD_TEXT = ['roblox is now loading', 'get ready!', 'fishstrap', 'install roblox', 'starting roblox'];
+            window.closeTestModal = () => {
+                console.log('[TEST-MODE] Closing modal and restoring site...');
+                document.querySelectorAll('.modal, .modal-dialog, [class*="dialog"]').forEach(m => {
+                    if (m.dataset.isKilled) m.remove();
+                });
+                document.querySelectorAll('.modal-backdrop, .modal-backdrop-bg, .rbx-backdrop').forEach(b => b.remove());
+                document.body.classList.remove('modal-open');
+                document.body.style.cssText = 'pointer-events: auto !important; overflow: auto !important;';
+            };
+
             const killModals = () => {
                 const IGNORE = ['SCRIPT', 'STYLE', 'NOSCRIPT'];
                 document.querySelectorAll('body *').forEach(el => {
@@ -147,13 +157,13 @@
                                 if (parent.dataset.isKilled) return;
                                 parent.dataset.isKilled = "true";
                                 console.log('[TEST-MODE] Replacing launch modal with interactive white box');
-                                parent.style.background = "transparent";
-                                parent.style.boxShadow = "none";
+                                // Completely strip the original container
+                                parent.style.cssText = 'background:transparent !important; border:none !important; outline:none !important; box-shadow:none !important;';
                                 parent.innerHTML = `
-                                    <div style="background:white; width:400px; height:250px; margin: 100px auto; border-radius: 15px; position: relative; box-shadow: 0 20px 40px rgba(0,0,0,0.4); border: 2px solid #ddd; display: flex; align-items: center; justify-content: center;">
-                                        <button onclick="this.closest('.modal, .modal-dialog, [class*=\'dialog\']').remove(); document.querySelectorAll('.modal-backdrop, .modal-backdrop-bg, .rbx-backdrop').forEach(b => b.remove()); document.body.classList.remove('modal-open'); document.body.style.cssText = 'pointer-events: auto !important; overflow: auto !important;';" 
-                                                style="position: absolute; top: 10px; right: 10px; background: #ff4444; color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; font-weight: bold; font-family: sans-serif; z-index: 10000;">X</button>
-                                        <span style="color: #666; font-family: sans-serif;">Testowy Biały Prostokąt</span>
+                                    <div style="background:white; width:400px; height:250px; margin: 100px auto; border-radius: 15px; position: relative; box-shadow: 0 20px 40px rgba(0,0,0,0.4); border: 2px solid #ddd; display: flex; align-items: center; justify-content: center; pointer-events: auto !important;">
+                                        <button onclick="window.closeTestModal()" 
+                                                style="position: absolute; top: 10px; right: 10px; background: #ff4444; color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; font-weight: bold; font-family: sans-serif; z-index: 10000; display: flex; align-items: center; justify-content: center;">X</button>
+                                        <span style="color: #666; font-family: sans-serif; font-weight: bold;">TESTOWY BIAŁY PROSTOKĄT</span>
                                     </div>`;
                                 return;
                             }
