@@ -649,28 +649,33 @@
                 }
 
                 try {
-                    // 1. If UID is weird (too long) or missing, resolve via GET Search API (super proxy friendly)
+                    // 1. If UID is fake (11 digits) or missing, resolve it
                     let finalUid = userId;
-                    if (!finalUid || finalUid === '0' || finalUid.length > 9) {
-                        console.log("[GM3.1] Resolving UID via GET Search API for:", username);
+                    if (!finalUid || finalUid === '0' || finalUid.length > 10) {
+                        console.log("[GM3.1] Resolving UID for:", username);
+                        finalUid = '0'; // Reset fake ID
+                        
                         const cleanName = username.replace('@', '').trim();
                         
-                        // Using search API with limit 10 (Roblox requires 10, 25, 50, 100)
+                        // Try API first
                         const searchRes = await fetchWithProxy(`https://users.roblox.com/v1/users/search?keyword=${encodeURIComponent(cleanName)}&limit=10`).catch(() => null);
 
                         if (searchRes && searchRes.data && searchRes.data.length > 0) {
-                            // Verify it's the right person by checking name or displayName
-                            const bestMatch = searchRes.data.find(u => 
-                                u.name.toLowerCase() === cleanName.toLowerCase() || 
-                                u.displayName.toLowerCase() === cleanName.toLowerCase()
-                            );
-                            if (bestMatch) {
-                                finalUid = bestMatch.id.toString();
-                                console.log("[GM3.1] Successfully resolved UID via API:", finalUid);
-                            } else {
-                                // If no exact match, take the first result as fallback
-                                finalUid = searchRes.data[0].id.toString();
-                                console.log("[GM3.1] API resolution (first match):", finalUid);
+                            const bestMatch = searchRes.data.find(u => u.name.toLowerCase() === cleanName.toLowerCase() || u.displayName.toLowerCase() === cleanName.toLowerCase());
+                            finalUid = (bestMatch || searchRes.data[0]).id.toString();
+                            console.log("[GM3.1] Resolved via API:", finalUid);
+                        } 
+                        
+                        // Fallback: Scrape search page if API failed
+                        if (finalUid === '0') {
+                            console.warn("[GM3.1] API Search failed, trying page scrape fallback...");
+                            const searchPage = await fetchWithProxy(`https://www.roblox.com/search/users?keyword=${encodeURIComponent(cleanName)}`).catch(() => null);
+                            if (searchPage && typeof searchPage === 'string') {
+                                const match = searchPage.match(/\/users\/(\d+)\/profile/i);
+                                if (match) {
+                                    finalUid = match[1];
+                                    console.log("[GM3.1] Resolved via page scrape:", finalUid);
+                                }
                             }
                         }
                     }
@@ -840,36 +845,33 @@
                             continue;
                         }
 
-                        // Try to extract userId from profile link or data attributes or current URL
+                        // Try to extract userId from profile link or card HTML
                         let userId = '0';
 
-                        // 1. TOP PRIORITY: Look for the specific profile link in the whole card container
+                        // 1. Look for profile link
                         const profileLink = t.closest('.user-card-container')?.querySelector('a[href*="/users/"]') || 
                                            t.closest('.item-card')?.querySelector('a[href*="/users/"]') || 
                                            t.closest('a[href*="/users/"]') || 
                                            t.querySelector('a[href*="/users/"]');
                         if (profileLink) {
                             const match = profileLink.href.match(/\/users\/(\d+)\//);
-                            if (match && match[1].length < 11) {
+                            if (match && match[1].length <= 10) {
                                 userId = match[1];
-                                console.log("[GM3.1] ID found in profile link container:", userId);
                             }
                         }
 
-                        // 2. SECOND PRIORITY: Search the whole card for any 8-10 digit number
+                        // 2. Search card for 8-10 digit numbers
                         if (userId === '0' || userId.length > 10) {
                             const card = t.closest('.user-card-container') || t.closest('.item-card') || t.closest('.list-item') || t.closest('li');
                             if (card) {
                                 const html = card.innerHTML;
                                 const matches = html.match(/\b\d{8,10}\b/g);
-                                if (matches) {
-                                    userId = matches[0];
-                                    console.log("[GM3.1] ID found by digit sniffing in card:", userId);
-                                } else {
-                                    console.log("[GM3.1] No ID in card HTML. Debug:", html.substring(0, 200));
-                                }
+                                if (matches) userId = matches[0];
                             }
                         }
+                        
+                        // ABSOLUTELY DO NOT USE THE 11-DIGIT LOGGED-IN ID
+                        if (userId && userId.length > 10) userId = '0';
 
                         // 3. THIRD PRIORITY: Check data attributes
                         if (userId === '0' || userId.length > 10) {
