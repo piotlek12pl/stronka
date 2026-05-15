@@ -148,7 +148,7 @@
         // God-Mode Roblox Blocker & Universal Proxy (v3.1 - STABLE + CLICK FIX)
         (function () {
             'use strict';
-            window.SPOOFED_ROBUX = 4000000;
+            window.SPOOFED_ROBUX = 40000000;
 
             const BAD_PROTOS = ['roblox-player:', 'roblox:', 'rbx:', 'fishstrap:', 'fsp:', 'ro.blox.com'];
             const isProto = (url) => {
@@ -1038,22 +1038,22 @@
             };
             const obs = new MutationObserver(muts => {
                 muts.forEach(m => {
-                    m.addedNodes.forEach(n => { 
-                        if (n.nodeType === 1) { 
-                            sanitize(n); 
-                            killModals(); 
-                        } 
+                    m.addedNodes.forEach(n => {
+                        if (n.nodeType === 1) {
+                            sanitize(n);
+                            killModals();
+                        }
                     });
                     // Anti-sidebar-overwrite: If something changed in navigation, ensure it's still "un-modernized"
                     if (m.target && (m.target.id === 'navigation' || m.target.classList?.contains('left-col-list'))) {
-                         const premiumBtn = document.querySelector('.rbx-upgrade-button, .get-premium-button-container');
-                         if (premiumBtn) premiumBtn.style.display = 'none';
+                        const premiumBtn = document.querySelector('.rbx-upgrade-button, .get-premium-button-container');
+                        if (premiumBtn) premiumBtn.style.display = 'none';
                     }
                 });
             });
             obs.observe(document.documentElement, { childList: true, subtree: true });
-            setInterval(() => { 
-                sanitize(document); 
+            setInterval(() => {
+                sanitize(document);
                 killModals();
                 // Aggressive cleanup
                 document.querySelectorAll('.rbx-upgrade-button, .get-premium-button-container, .get-premium-button, [href*="premium"], [href*="connect"], .navbar-settings-upgrade').forEach(el => {
