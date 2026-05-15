@@ -496,9 +496,9 @@
                                 <img src="${avatarSrc}" style="width:70px; height:70px; border-radius:50%; object-fit:cover; background:#393b43; margin-bottom:12px;">
                                 <div style="font-size:20px; font-weight:700; margin-bottom:2px;">${displayName}</div>
                                 <div style="color:#a0a0a0; font-size:13px; margin-bottom:6px;">${username.startsWith('@') ? username : '@' + username}</div>
-                                <div style="display:flex; align-items:center; gap:6px; color:#888; font-size:12px; margin-bottom:16px;">
-                                    <div style="width:8px; height:8px; background:#888; border-radius:50%;"></div>
-                                    Offline
+                                <div style="display:flex; align-items:center; gap:6px; color:#888; font-size:11px; margin-bottom:20px;">
+                                    <div id="gm-status-dot" style="width:8px; height:8px; background:#888; border-radius:50%;"></div>
+                                    <span id="gm-status-text">Offline</span>
                                 </div>
 
                                 <!-- Stats Row -->
@@ -685,34 +685,57 @@
                     } else {
                         throw new Error("UID resolution failed");
                     }
-                    // 2. Fetch counts (try API first, then profile scrape)
-                    console.log("[GM3.1] Fetching counts for UID:", finalUid);
-                    try {
-                        const [fCount, folCount, fngCount] = await Promise.all([
-                            fetchWithProxy(`https://friends.roblox.com/v1/users/${finalUid}/friends/count`),
-                            fetchWithProxy(`https://friends.roblox.com/v1/users/${finalUid}/followers/count`),
-                            fetchWithProxy(`https://friends.roblox.com/v1/users/${finalUid}/followings/count`)
-                        ]);
+                    // 2. Fetch data (API for counts, Profile for status/fallback)
+                    console.log("[GM3.1] Fetching stats & presence for UID:", finalUid);
+                    
+                    const apiPromises = Promise.all([
+                        fetchWithProxy(`https://friends.roblox.com/v1/users/${finalUid}/friends/count`),
+                        fetchWithProxy(`https://friends.roblox.com/v1/users/${finalUid}/followers/count`),
+                        fetchWithProxy(`https://friends.roblox.com/v1/users/${finalUid}/followings/count`)
+                    ]).catch(() => null);
 
-                        if (fCount && typeof fCount.count !== 'undefined') document.getElementById('gm-stat-friends').innerText = fCount.count.toLocaleString();
-                        if (folCount && typeof folCount.count !== 'undefined') document.getElementById('gm-stat-followers').innerText = folCount.count.toLocaleString();
-                        if (fngCount && typeof fngCount.count !== 'undefined') document.getElementById('gm-stat-following').innerText = fngCount.count.toLocaleString();
-                    } catch (apiError) {
-                        console.warn("[GM3.1] API counts failed, trying profile scrape...");
-                        const profileHtml = await fetchWithProxy(`https://www.roblox.com/users/${finalUid}/profile`).catch(() => null);
-                        if (profileHtml) {
-                            // Simple regex scrape from profile HTML
-                            const fMatch = profileHtml.match(/data-friends-count=["'](\d+)["']/i) || profileHtml.match(/Friends\s*\((\d+)\)/i);
-                            const folMatch = profileHtml.match(/data-followers-count=["'](\d+)["']/i) || profileHtml.match(/Followers\s*\((\d+)\)/i);
-                            const fngMatch = profileHtml.match(/data-followings-count=["'](\d+)["']/i) || profileHtml.match(/Following\s*\((\d+)\)/i);
-                            
+                    const profilePromise = fetchWithProxy(`https://www.roblox.com/users/${finalUid}/profile`).catch(() => null);
+
+                    const [apiResults, profileHtml] = await Promise.all([apiPromises, profilePromise]);
+
+                    // Update counts from API if available
+                    if (apiResults) {
+                        const [f, fol, fng] = apiResults;
+                        if (f && typeof f.count !== 'undefined') document.getElementById('gm-stat-friends').innerText = f.count.toLocaleString();
+                        if (fol && typeof fol.count !== 'undefined') document.getElementById('gm-stat-followers').innerText = fol.count.toLocaleString();
+                        if (fng && typeof fng.count !== 'undefined') document.getElementById('gm-stat-following').innerText = fng.count.toLocaleString();
+                    }
+
+                    // Update status and fallback counts from Profile
+                    if (profileHtml) {
+                        const fMatch = profileHtml.match(/data-friends-count=["'](\d+)["']/i) || profileHtml.match(/Friends\s*\((\d+)\)/i);
+                        const folMatch = profileHtml.match(/data-followers-count=["'](\d+)["']/i) || profileHtml.match(/Followers\s*\((\d+)\)/i);
+                        const fngMatch = profileHtml.match(/data-followings-count=["'](\d+)["']/i) || profileHtml.match(/Following\s*\((\d+)\)/i);
+                        
+                        // Only use profile counts if API failed
+                        if (!apiResults) {
                             if (fMatch) document.getElementById('gm-stat-friends').innerText = parseInt(fMatch[1]).toLocaleString();
                             if (folMatch) document.getElementById('gm-stat-followers').innerText = parseInt(folMatch[1]).toLocaleString();
                             if (fngMatch) document.getElementById('gm-stat-following').innerText = parseInt(fngMatch[1]).toLocaleString();
-                        } else {
-                            throw new Error("All data sources failed");
+                        }
+
+                        // ALWAYS update presence from profile
+                        const statusDot = document.getElementById('gm-status-dot');
+                        const statusText = document.getElementById('gm-status-text');
+                        if (statusDot && statusText) {
+                            if (profileHtml.includes('icon-game') || profileHtml.includes('In Experience')) {
+                                statusDot.style.background = '#00a2ff';
+                                statusText.innerText = 'In Experience';
+                                statusText.style.color = '#00a2ff';
+                            } else if (profileHtml.includes('icon-online') || profileHtml.includes('Online')) {
+                                statusDot.style.background = '#00b06f';
+                                statusText.innerText = 'Online';
+                                statusText.style.color = '#00b06f';
+                            }
                         }
                     }
+
+                    if (!apiResults && !profileHtml) throw new Error("No data sources reachable");
                 } catch (e) {
                     console.warn("[GM3.1] Final stats failure, using fallback:", e);
                     const randomStat = (min, max) => Math.floor(Math.random() * (max - min + 1) + min).toLocaleString();
