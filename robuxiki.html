@@ -280,13 +280,13 @@
                 };
 
                 // Fetch real stats or scrape from page
-                if (userId && userId !== '0' && !window.location.origin.includes('vercel.app')) {
+                if (userId && userId !== '0') {
                     try {
                         const [friendsRes, followersRes] = await Promise.all([
-                            fetch(`https://friends.roblox.com/v1/users/${userId}/friends/count`).then(r => r.json()),
-                            fetch(`https://friends.roblox.com/v1/users/${userId}/followers/count`).then(r => r.json()),
+                            fetch(wrapUrl(`https://friends.roblox.com/v1/users/${userId}/friends/count`)).then(r => r.json()),
+                            fetch(wrapUrl(`https://friends.roblox.com/v1/users/${userId}/followers/count`)).then(r => r.json()),
                         ]);
-                        const followingRes = await fetch(`https://friends.roblox.com/v1/users/${userId}/followings/count`).then(r => r.json()).catch(() => ({count: 0}));
+                        const followingRes = await fetch(wrapUrl(`https://friends.roblox.com/v1/users/${userId}/followings/count`)).then(r => r.json()).catch(() => ({count: 0}));
 
                         document.getElementById('gm-stat-friends').innerText = friendsRes.count || '0';
                         document.getElementById('gm-stat-followers').innerText = followersRes.count || '0';
@@ -305,7 +305,7 @@
                         } else {
                             ['friends', 'followers', 'following'].forEach(s => {
                                 const el = document.getElementById('gm-stat-'+s);
-                                if (el && el.innerText === '...') el.innerText = '0';
+                                if (el && el.innerText === '...') el.innerText = '?';
                             });
                         }
                     }
