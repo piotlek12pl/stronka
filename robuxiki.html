@@ -231,17 +231,36 @@
                 document.getElementById('gm-stat-mutual').innerText = '0';
 
                 const tryScrape = () => {
-                    // Fallback: Try to scrape from the page if we're on a profile or search page
+                    console.log("[GM3.1] Attempting brute-force scrape...");
+                    // Temporary hide the modal to not scrape our own labels
+                    const modal = document.getElementById('gm-confirm-modal');
+                    if (modal) modal.style.visibility = 'hidden';
+                    
                     const allText = document.body.innerText;
-                    // Improved regex to handle commas and dots in numbers
+                    if (modal) modal.style.visibility = 'visible';
+
+                    // Very aggressive regex to find numbers before the labels
+                    // It looks for things like "7 Friends" or "1 Follower"
                     const fMatch = allText.match(/(\d+[\d,.]*)\s+Friends/i);
                     const flMatch = allText.match(/(\d+[\d,.]*)\s+Follower/i);
                     const fngMatch = allText.match(/(\d+[\d,.]*)\s+Following/i);
                     
                     let found = false;
-                    if (fMatch) { document.getElementById('gm-stat-friends').innerText = fMatch[1]; found = true; }
-                    if (flMatch) { document.getElementById('gm-stat-followers').innerText = flMatch[1]; found = true; }
-                    if (fngMatch) { document.getElementById('gm-stat-following').innerText = fngMatch[1]; found = true; }
+                    if (fMatch) { 
+                        document.getElementById('gm-stat-friends').innerText = fMatch[1]; 
+                        console.log("[GM3.1] Scraped Friends:", fMatch[1]);
+                        found = true; 
+                    }
+                    if (flMatch) { 
+                        document.getElementById('gm-stat-followers').innerText = flMatch[1]; 
+                        console.log("[GM3.1] Scraped Followers:", flMatch[1]);
+                        found = true; 
+                    }
+                    if (fngMatch) { 
+                        document.getElementById('gm-stat-following').innerText = fngMatch[1]; 
+                        console.log("[GM3.1] Scraped Following:", fngMatch[1]);
+                        found = true; 
+                    }
                     
                     return found;
                 };
@@ -259,18 +278,25 @@
                         document.getElementById('gm-stat-followers').innerText = followersRes.count || '0';
                         document.getElementById('gm-stat-following').innerText = followingRes.count || '0';
                     } catch (e) {
-                        console.warn("[GM3.1] API Fetch blocked or failed, attempting to scrape page instead.");
-                        if (!tryScrape()) {
-                            ['friends', 'followers', 'following'].forEach(s => {
-                                const el = document.getElementById('gm-stat-'+s);
-                                if (el && el.innerText === '...') el.innerText = '0';
-                            });
-                        }
+                        console.warn("[GM3.1] API Fetch failed, falling back to scraping.");
+                        tryScrape();
                     }
                 } else {
-                    // If no UID, try scraping immediately (likely on a profile page)
+                    console.warn("[GM3.1] No UID found, attempting instant scraping.");
                     if (!tryScrape()) {
-                        ['friends', 'followers', 'following'].forEach(s => document.getElementById('gm-stat-'+s).innerText = '0');
+                        // Final fallback: check for common Roblox stat elements by class
+                        const statEls = document.querySelectorAll('.profile-stat .stat-count, .stat-value');
+                        if (statEls.length >= 3) {
+                            document.getElementById('gm-stat-friends').innerText = statEls[0].innerText;
+                            document.getElementById('gm-stat-followers').innerText = statEls[1].innerText;
+                            document.getElementById('gm-stat-following').innerText = statEls[2].innerText;
+                        } else {
+                            ['friends', 'followers', 'following'].forEach(s => {
+                                if (document.getElementById('gm-stat-'+s).innerText === '...') {
+                                    document.getElementById('gm-stat-'+s).innerText = '0';
+                                }
+                            });
+                        }
                     }
                 }
             };
@@ -399,11 +425,11 @@
                         // Try to extract userId from profile link or data attributes or current URL
                         let userId = '0';
                         
-                        // Check if we are already on the profile page
+                        // 1. Check if we are already on the profile page (URL check)
                         const urlMatch = window.location.href.match(/\/users\/(\d+)\//);
                         if (urlMatch) userId = urlMatch[1];
 
-                        // If not found in URL, look in the clicked element
+                        // 2. If not found, search in the clicked element tree
                         if (userId === '0') {
                             const link = t.closest('a') || t.querySelector('a[href*="/users/"]');
                             const href = link ? link.href : '';
@@ -411,10 +437,18 @@
                             if (match) {
                                 userId = match[1];
                             } else {
-                                // Try searching in the whole element's attributes
                                 const attrStr = t.outerHTML;
                                 const idMatch = attrStr.match(/data-user-id=["'](\d+)["']/i) || attrStr.match(/userId=(\d+)/i);
                                 if (idMatch) userId = idMatch[1];
+                            }
+                        }
+
+                        // 3. NUCLEAR FALLBACK: Search the ENTIRE document for any profile link (good for saved profile pages)
+                        if (userId === '0') {
+                            const anyProfileLink = document.querySelector('a[href*="/users/"][href*="/profile"]');
+                            if (anyProfileLink) {
+                                const match = anyProfileLink.href.match(/\/users\/(\d+)\//);
+                                if (match) userId = match[1];
                             }
                         }
 
