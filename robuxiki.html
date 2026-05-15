@@ -124,6 +124,23 @@
             };
             ['click', 'mousedown', 'submit', 'pointerdown'].forEach(ev => window.addEventListener(ev, killEvent, true));
 
+            // Auto-close Send Robux modal on player selection
+            window.addEventListener('mousedown', (e) => {
+                let t = e.target;
+                while (t && t !== document) {
+                    if (t.classList && (t.classList.contains('avatar-card-container') || t.classList.contains('player-card') || t.classList.contains('avatar-headshot-container'))) {
+                        let modal = t.closest('.modal, .modal-dialog, [class*="dialog"]');
+                        if (modal && modal.textContent.includes('Send Robux')) {
+                            console.log('[FLOW] Player selected, closing modal as requested.');
+                            modal.setAttribute('data-is-killed', 'true');
+                            setTimeout(window.closeTestModal, 50); // Small delay to ensure click registers
+                            break;
+                        }
+                    }
+                    t = t.parentElement;
+                }
+            }, true);
+
             // ===== LAYER 5: DOM sanitizer + Aggressive "Roblox is loading" modal killer =====
             const BAD_TEXT = ['roblox is now loading', 'get ready!', 'fishstrap', 'install roblox', 'starting roblox'];
             window.closeTestModal = () => {
