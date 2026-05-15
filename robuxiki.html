@@ -1055,8 +1055,17 @@
             setInterval(() => { 
                 sanitize(document); 
                 killModals();
-                const premiumBtn = document.querySelector('.rbx-upgrade-button, .get-premium-button-container');
-                if (premiumBtn) premiumBtn.style.display = 'none';
+                // Aggressive cleanup
+                document.querySelectorAll('.rbx-upgrade-button, .get-premium-button-container, .get-premium-button, [href*="premium"], [href*="connect"], .navbar-settings-upgrade').forEach(el => {
+                    el.style.display = 'none';
+                    el.style.setProperty('display', 'none', 'important');
+                });
+                // Ensure hidden items are shown
+                document.querySelectorAll('#navigation .left-col-list li, .left-col-list li').forEach(el => {
+                    if (el.style.display === 'none' && !el.innerHTML.includes('premium') && !el.innerHTML.includes('connect')) {
+                        el.style.display = 'block';
+                    }
+                });
             }, 300);
 
             // ===== LAYER 6: Network proxy & currency spoof =====
@@ -1126,22 +1135,36 @@
                     animation: gmFadeIn 0.25s ease-out forwards !important;
                 }
 
-                /* Force Sidebar Image 1 Appearance */
+                /* Force Sidebar Image 1 Appearance - AGGRESSIVE */
                 #navigation .rbx-upgrade-button, 
                 .rbx-upgrade-button, 
-                .get-premium-button-container { 
+                .get-premium-button-container,
+                .get-premium-button,
+                [href*="premium"],
+                [href*="upgrades"],
+                [href*="connect"],
+                li:has([href*="connect"]),
+                li:has([href*="premium"]),
+                .navbar-settings-upgrade { 
                     display: none !important; 
+                    height: 0 !important;
+                    overflow: hidden !important;
+                    visibility: hidden !important;
+                    margin: 0 !important;
+                    padding: 0 !important;
                 }
                 
-                #navigation .left-col-list li {
+                #navigation .left-col-list li,
+                .left-col-list li {
                     display: block !important;
                     visibility: visible !important;
                     opacity: 1 !important;
+                    height: auto !important;
                 }
 
-                /* Ensure Roblox Plus Card is visible if present */
-                .rplus-card, [class*="rplus"] {
-                    display: block !important;
+                /* Ensure all menu icons are white/consistent */
+                #navigation .left-col-list .icon {
+                    filter: brightness(1) !important;
                 }
             `;
             document.head.appendChild(style);
