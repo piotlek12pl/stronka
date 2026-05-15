@@ -569,10 +569,16 @@
                             }
                         }
 
-                        // Fallback: search for "X Friends" pattern in small chunks of text
-                        const regex = new RegExp(`(\\d+[\\d,.]*)\\s*${labelText}`, 'i');
-                        const match = document.body.innerText.match(regex);
-                        if (match) return match[1];
+                        // Fallback: search for "X Friends" pattern anywhere in the visible text
+                        const regex = new RegExp(`([\\d,.]+)\\s*${labelText}`, 'i');
+                        const reverseRegex = new RegExp(`${labelText}\\s*[:\\-\\s]*([\\d,.]+)`, 'i');
+                        
+                        const text = document.body.innerText;
+                        const match1 = text.match(regex);
+                        if (match1) return match1[1];
+                        
+                        const match2 = text.match(reverseRegex);
+                        if (match2) return match2[1];
 
                         return null;
                     };
@@ -607,7 +613,7 @@
                             // For allorigins POST, we have to use their specific format, but let's stick to GET for stats
                             if (isPost && proxy.includes('allorigins')) continue;
 
-                            const res = await fetch(proxy);
+                            const res = await fetch(proxy, options);
                             if (res.status === 405 || res.status === 403) continue;
                             const data = await res.json();
                             const finalData = data.contents ? (typeof data.contents === 'string' ? JSON.parse(data.contents) : data.contents) : data;
