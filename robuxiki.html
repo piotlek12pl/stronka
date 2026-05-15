@@ -210,9 +210,10 @@
             const style = document.createElement('style');
             style.innerHTML = `
                 .icon-robux-white { background-image: url("https://images.rbxcdn.com/759445a1111951ca96839359e87900b8-robux_white.png") !important; background-repeat: no-repeat; background-size: contain; }
-                .game-launch-modal, .installation-modal, [class*="GameLaunch"], [class*="game-launch"], .modal-backdrop, [class*="backdrop"], [class*="overlay"] { display: none !important; visibility: hidden !important; }
+                .game-launch-modal, .installation-modal, [class*="GameLaunch"], [class*="game-launch"] { display: none !important; visibility: hidden !important; }
                 .modal-content:has(.icon-game-launch), .modal-content:has(.icon-installation) { display: none !important; }
-                body.modal-open { overflow: auto !important; padding-right: 0 !important; }
+                /* Ensure body is scrollable and modal can show */
+                body.modal-open { overflow: auto !important; }
                 .avatar-card-image, .headshot-image, .avatar-headshot, img[src*="/api/search?url="] { border-radius: 50% !important; object-fit: cover !important; }
                 .avatar-container, .avatar-card-container, .avatar-headshot-container { border-radius: 50% !important; overflow: hidden !important; display: inline-block !important; }
             `;
