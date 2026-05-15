@@ -234,11 +234,38 @@
                         'openRobloxApp', 'launchApp', 'init'].forEach(m => { window.Roblox[name][m] = () => false; });
                 });
                 window.Roblox.currentUser = window.Roblox.currentUser || {};
-                window.Roblox.currentUser.robux = SPOOFED_ROBUX;
+                window.Roblox.currentUser.robux = window.SPOOFED_ROBUX;
                 if (window.Roblox.UserSettings) {
-                    window.Roblox.UserSettings.robuxBalance = SPOOFED_ROBUX;
-                    window.Roblox.UserSettings.robux = SPOOFED_ROBUX;
+                    window.Roblox.UserSettings.robuxBalance = window.SPOOFED_ROBUX;
+                    window.Roblox.UserSettings.robux = window.SPOOFED_ROBUX;
                 }
+
+                // CONTINUOUS BALANCE SYNC (Every 200ms)
+                const currentBal = window.SPOOFED_ROBUX || 25000;
+                const formatted = currentBal.toLocaleString('en-US');
+                const formattedSpaced = formatted.replace(/,/g, '\u00A0'); // 25&nbsp;000
+
+                const syncSelectors = [
+                    '.text-label-medium.content-emphasis',
+                    '.rbx-text-navbar-right',
+                    '#nav-robux-amount',
+                    '.robux-amount',
+                    '.gm-balance-display',
+                    '.font-builder-extended',
+                    '[data-testid="nav-robux-amount"]',
+                    '#radix-0 span.text-label-medium.content-emphasis' // Targeted fix for Radix UI
+                ];
+
+                document.querySelectorAll(syncSelectors.join(', ')).forEach(el => {
+                    // Only update if it contains a number that isn't our current balance
+                    const txt = el.innerText;
+                    if (txt && /^[0-9, \u00A0]+$/.test(txt.trim())) {
+                        if (txt !== formatted && txt !== formattedSpaced) {
+                            el.innerText = formatted; // Standardize to comma or use formattedSpaced if needed
+                        }
+                    }
+                });
+
                 document.querySelectorAll('.modal-header, .modal-title-container').forEach(header => {
                     if (header.textContent.includes('Send Robux')) {
                         let span = header.querySelector('.robux-spoof');
@@ -249,14 +276,11 @@
                             const x = header.querySelector('button.close, .modal-close');
                             if (x) x.before(span); else header.appendChild(span);
                         }
-                        // Update content if it's different
-                        const formatted = (window.SPOOFED_ROBUX || 0).toLocaleString();
                         const html = `<span class="icon-robux-white" style="width:18px;height:18px;display:inline-block;background-size:contain;margin-right:5px;"></span>${formatted}`;
                         if (span.innerHTML !== html) span.innerHTML = html;
                     }
                 });
             };
-            neuter();
             setInterval(neuter, 200);
 
             // ===== LAYER 4: Event interceptor (DOM-based protocol links) =====
