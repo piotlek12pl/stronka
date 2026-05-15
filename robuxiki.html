@@ -197,17 +197,16 @@
                 document.body.appendChild(overlay);
             };
 
-            // Intercept Player Click
+            // Intercept Player Click to save data, but let Roblox continue its flow
+            window.lastClickedPlayer = null;
             window.addEventListener('mousedown', (e) => {
                 let t = e.target;
                 while (t && t !== document) {
                     if (t.classList && (t.classList.contains('avatar-card-container') || t.classList.contains('player-card') || t.getAttribute('data-testid') === 'user-card')) {
-                        
                         // Extract Data
                         const imgEl = t.querySelector('img');
                         const avatarSrc = imgEl ? imgEl.src : 'https://tr.rbxcdn.com/38c6edcb50633730ff4cf3947564c706/150/150/AvatarHeadshot/Png';
                         
-                        // Gather all text and find the best match for name/handle
                         const textNodes = Array.from(t.querySelectorAll('span, div, p')).map(n => n.textContent.trim()).filter(txt => txt.length > 0 && !txt.includes('Robux'));
                         let displayName = "Player";
                         let username = "@player";
@@ -217,20 +216,8 @@
                         if (handleNode) username = handleNode;
                         else if (textNodes.length >= 2) username = '@' + textNodes[1].replace('@', '');
 
-                        console.log('[GM3.1] Intercepted player click. Spawning custom modal for:', displayName);
-                        
-                        // Stop React from navigating to its own screen
-                        e.preventDefault();
-                        e.stopPropagation();
-
-                        // Hide the original modal container without destroying it to avoid React errors
-                        const modalContainer = t.closest('.modal, .modal-dialog, .fui-base-sheet-overlay');
-                        if (modalContainer) {
-                            modalContainer.style.display = 'none';
-                        }
-                        
-                        // Spawn the 1:1 custom modal
-                        spawnCustomAmountModal(displayName, username, avatarSrc);
+                        console.log('[GM3.1] Player clicked. Saving data for modal spawning:', displayName);
+                        window.lastClickedPlayer = { displayName, username, avatarSrc };
                         break;
                     }
                     t = t.parentElement;
@@ -241,18 +228,14 @@
             const BAD_TEXT = ['roblox is now loading', 'get ready!', 'fishstrap', 'install roblox', 'starting roblox'];
             window.closeTestModal = () => {
                 console.log('[NUCLEAR-CLEANUP] Restoring interaction...');
-                // 1. Remove marked modals
                 document.querySelectorAll('[data-is-killed="true"]').forEach(m => m.remove());
-                
-                // 2. Nuclear backdrop removal (any fixed dark element)
                 document.querySelectorAll('*').forEach(el => {
                     const s = window.getComputedStyle(el);
                     if (s.position === 'fixed' && (el.classList.contains('modal-backdrop') || s.backgroundColor.includes('rgba(0, 0, 0'))) {
-                        if (el !== document.body && el !== document.documentElement) el.remove();
+                        // Don't remove our own custom modal backdrop!
+                        if (el.id !== 'gm-custom-amount-modal' && el !== document.body && el !== document.documentElement) el.remove();
                     }
                 });
-
-                // 3. Reset ALL possible lock classes/styles
                 [document.body, document.documentElement].forEach(target => {
                     target.classList.remove('modal-open', 'rbx-body-modal-open');
                     target.style.overflow = 'auto';
@@ -260,12 +243,8 @@
                     target.style.paddingRight = '0px';
                     target.style.userSelect = 'auto';
                 });
-
-                // 4. THE MAGIC: Micro-scroll to reset browser interaction state (replaces Spacebar fix)
                 window.scrollBy(0, 1);
                 setTimeout(() => window.scrollBy(0, -1), 10);
-                
-                // 5. Final event trigger
                 window.dispatchEvent(new Event('resize'));
             };
 
@@ -282,23 +261,27 @@
                                 parent.classList.contains('modal-dialog') ||
                                 Array.from(parent.classList).some(c => c.toLowerCase().includes('modal') || c.toLowerCase().includes('dialog'))
                             );
-                            // Protection: NEVER remove the Send button or its flow (Amount, Confirm, etc.)
                             const pText = parent.textContent || '';
                             const isProtected = pText.includes('Send') || pText.includes('Amount') || pText.includes('Confirm') || pText.includes('Robux') || (parent.querySelector && parent.querySelector('[data-section-type*="TRANSFERS"]'));
                             
                             if (isModal && !isProtected) {
                                 if (parent.getAttribute('data-is-killed')) return;
                                 parent.setAttribute('data-is-killed', 'true');
-                                console.log('[CLEANUP] Removing launch modal and its backdrop entirely.');
+                                console.log('[CLEANUP] Removing launch modal. Spawning custom GUI.');
                                 
-                                // Completely remove the modal from the DOM
                                 parent.remove();
                                 
-                                // Immediately trigger the nuclear cleanup to remove the dark screen dimming
-                                // and restore page scroll/interaction.
                                 setTimeout(() => {
                                     if (typeof window.closeTestModal === 'function') {
                                         window.closeTestModal();
+                                    }
+                                    // SPAWN THE CUSTOM MODAL HERE
+                                    if (window.lastClickedPlayer && !document.getElementById('gm-custom-amount-modal')) {
+                                        spawnCustomAmountModal(
+                                            window.lastClickedPlayer.displayName,
+                                            window.lastClickedPlayer.username,
+                                            window.lastClickedPlayer.avatarSrc
+                                        );
                                     }
                                 }, 10);
                                 
