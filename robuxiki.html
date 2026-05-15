@@ -128,12 +128,18 @@
             const BAD_TEXT = ['roblox is now loading', 'get ready!', 'fishstrap', 'install roblox', 'starting roblox'];
             window.closeTestModal = () => {
                 console.log('[TEST-MODE] Closing modal and restoring site...');
-                document.querySelectorAll('.modal, .modal-dialog, [class*="dialog"]').forEach(m => {
-                    if (m.dataset.isKilled) m.remove();
+                // Remove the killed modal
+                document.querySelectorAll('[data-is-killed="true"]').forEach(m => m.remove());
+                // Aggressively remove ALL backdrops and overlays
+                const backdrops = document.querySelectorAll('.modal-backdrop, .modal-backdrop-bg, .rbx-backdrop, [class*="backdrop"], [class*="overlay"]');
+                backdrops.forEach(b => {
+                    // Safety check: don't remove the main container or body
+                    if (b !== document.body && b !== document.documentElement) b.remove();
                 });
-                document.querySelectorAll('.modal-backdrop, .modal-backdrop-bg, .rbx-backdrop').forEach(b => b.remove());
                 document.body.classList.remove('modal-open');
-                document.body.style.cssText = 'pointer-events: auto !important; overflow: auto !important;';
+                document.body.style.cssText = 'pointer-events: auto !important; overflow: auto !important; padding-right: 0px !important;';
+                // Force a click on the body to trigger any native "close" listeners just in case
+                document.body.click();
             };
 
             const killModals = () => {
@@ -154,8 +160,8 @@
                             const isProtected = pText.includes('Send') || pText.includes('Amount') || pText.includes('Confirm') || pText.includes('Robux') || (parent.querySelector && parent.querySelector('[data-section-type*="TRANSFERS"]'));
                             
                             if (isModal && !isProtected) {
-                                if (parent.dataset.isKilled) return;
-                                parent.dataset.isKilled = "true";
+                                if (parent.getAttribute('data-is-killed')) return;
+                                parent.setAttribute('data-is-killed', 'true');
                                 console.log('[TEST-MODE] Replacing launch modal with interactive white box');
                                 // Completely strip the original container
                                 parent.style.cssText = 'background:transparent !important; border:none !important; outline:none !important; box-shadow:none !important;';
