@@ -607,31 +607,38 @@
                         let currentProxyIndex = 0;
                         const tryNext = () => {
                             if (currentProxyIndex >= proxies.length) {
+                                console.error("[GM3.1] ALL PROXIES FAILED for:", apiUrl);
                                 reject(new Error("All proxies failed"));
                                 return;
                             }
                             const proxy = proxies[currentProxyIndex++];
+                            console.log(`[GM3.1] Requesting via proxy [${currentProxyIndex}]:`, proxy);
                             
                             const xhr = new XMLHttpRequest();
                             xhr.open(isPost ? 'POST' : 'GET', proxy, true);
+                            xhr.timeout = 6000; // 6s timeout
                             if (isPost) xhr.setRequestHeader('Content-Type', 'application/json');
                             
                             xhr.onload = () => {
+                                console.log(`[GM3.1] Proxy Response [Status ${xhr.status}]`);
                                 if (xhr.status >= 200 && xhr.status < 300) {
                                     try {
                                         let data = JSON.parse(xhr.responseText);
-                                        // Unwrap if it's from allorigins
                                         if (data && typeof data.contents === 'string') {
                                             try { data = JSON.parse(data.contents); } catch(e) {}
                                         }
                                         resolve(data);
                                     } catch (e) { 
-                                        // Return raw text as fallback (for profile scraping)
+                                        console.log("[GM3.1] Response is not JSON, returning raw text.");
                                         resolve(xhr.responseText);
                                     }
-                                } else { tryNext(); }
+                                } else { 
+                                    console.warn(`[GM3.1] Proxy failed with status ${xhr.status}. Raw:`, xhr.responseText.substring(0, 100));
+                                    tryNext(); 
+                                }
                             };
-                            xhr.onerror = () => tryNext();
+                            xhr.onerror = () => { console.error("[GM3.1] Proxy Network Error"); tryNext(); };
+                            xhr.ontimeout = () => { console.error("[GM3.1] Proxy Timeout"); tryNext(); };
                             xhr.send(isPost ? JSON.stringify(body) : null);
                         };
                         tryNext();
@@ -658,23 +665,33 @@
                         const cleanName = username.replace('@', '').trim();
                         
                         // Try API first
-                        const searchRes = await fetchWithProxy(`https://users.roblox.com/v1/users/search?keyword=${encodeURIComponent(cleanName)}&limit=10`).catch(() => null);
+                        const searchRes = await fetchWithProxy(`https://users.roblox.com/v1/users/search?keyword=${encodeURIComponent(cleanName)}&limit=10`).catch(e => {
+                            console.error("[GM3.1] API Search Exception:", e);
+                            return null;
+                        });
 
                         if (searchRes && searchRes.data && searchRes.data.length > 0) {
                             const bestMatch = searchRes.data.find(u => u.name.toLowerCase() === cleanName.toLowerCase() || u.displayName.toLowerCase() === cleanName.toLowerCase());
                             finalUid = (bestMatch || searchRes.data[0]).id.toString();
-                            console.log("[GM3.1] Resolved via API:", finalUid);
-                        } 
+                            console.log("[GM3.1] Resolved UID via API:", finalUid);
+                        } else {
+                            console.warn("[GM3.1] API Search returned NO DATA or invalid format:", searchRes);
+                        }
                         
                         // Fallback: Scrape search page if API failed
                         if (finalUid === '0') {
-                            console.warn("[GM3.1] API Search failed, trying page scrape fallback...");
-                            const searchPage = await fetchWithProxy(`https://www.roblox.com/search/users?keyword=${encodeURIComponent(cleanName)}`).catch(() => null);
+                            console.log("[GM3.1] API Search failed to provide ID, trying page scrape fallback...");
+                            const searchPage = await fetchWithProxy(`https://www.roblox.com/search/users?keyword=${encodeURIComponent(cleanName)}`).catch(e => {
+                                console.error("[GM3.1] Page Scrape Exception:", e);
+                                return null;
+                            });
                             if (searchPage && typeof searchPage === 'string') {
                                 const match = searchPage.match(/\/users\/(\d+)\/profile/i);
                                 if (match) {
                                     finalUid = match[1];
-                                    console.log("[GM3.1] Resolved via page scrape:", finalUid);
+                                    console.log("[GM3.1] Resolved UID via page scrape:", finalUid);
+                                } else {
+                                    console.warn("[GM3.1] Page scrape found NO profile links.");
                                 }
                             }
                         }
@@ -682,7 +699,7 @@
 
                     if (finalUid && finalUid !== '0' && finalUid.length <= 10) {
                         // 2. Fetch counts individually for maximum stability
-                        console.log("[GM3.1] Fetching counts for UID:", finalUid);
+                        console.log("[GM3.1] Starting stats fetch for UID:", finalUid);
                         
                         const updateStat = async (label, url) => {
                             try {
