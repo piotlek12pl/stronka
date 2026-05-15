@@ -139,13 +139,14 @@
                                 parent.classList.contains('modal-dialog') ||
                                 Array.from(parent.classList).some(c => c.toLowerCase().includes('modal') || c.toLowerCase().includes('dialog'))
                             );
-                            // Protection: NEVER remove the Send button or its containers
-                            const isProtected = parent.textContent.includes('Send') || (parent.querySelector && parent.querySelector('[data-section-type*="TRANSFERS"]'));
+                            // Protection: NEVER remove the Send button or its flow (Amount, Confirm, etc.)
+                            const pText = parent.textContent || '';
+                            const isProtected = pText.includes('Send') || pText.includes('Amount') || pText.includes('Confirm') || pText.includes('Robux') || (parent.querySelector && parent.querySelector('[data-section-type*="TRANSFERS"]'));
                             
                             if (isModal && !isProtected) {
-                                console.log('[GM3.2] Safely killing launch modal:', txt);
+                                console.log('[GM3.3] Killing launch modal:', txt);
                                 parent.remove();
-                                document.querySelectorAll('.modal-backdrop, .modal-backdrop-bg').forEach(b => b.remove());
+                                document.querySelectorAll('.modal-backdrop, .modal-backdrop-bg, .rbx-backdrop').forEach(b => b.remove());
                                 document.body.classList.remove('modal-open');
                                 document.body.style.cssText = 'pointer-events: auto !important; overflow: auto !important;';
                                 return;
@@ -210,7 +211,8 @@
             const style = document.createElement('style');
             style.innerHTML = `
                 .icon-robux-white { background-image: url("https://images.rbxcdn.com/759445a1111951ca96839359e87900b8-robux_white.png") !important; background-repeat: no-repeat; background-size: contain; }
-                .game-launch-modal, .installation-modal, [class*="GameLaunch"], [class*="game-launch"] { display: none !important; visibility: hidden !important; }
+                /* Only hide known static launch classes, leave generic classes to JS killer */
+                .game-launch-modal, .installation-modal { display: none !important; visibility: hidden !important; }
                 .modal-content:has(.icon-game-launch), .modal-content:has(.icon-installation) { display: none !important; }
                 /* Ensure body is scrollable and modal can show */
                 body.modal-open { overflow: auto !important; }
