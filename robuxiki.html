@@ -149,7 +149,7 @@
                 el.style.width = 'calc(' + formatted.length + 'ch + 6px)';
             };
 
-            window.spawnConfirmModal = (displayName, username, avatarSrc, amount) => {
+            window.spawnConfirmModal = async (displayName, username, avatarSrc, amount, userId) => {
                 const currentRobux = typeof SPOOFED_ROBUX !== 'undefined' ? SPOOFED_ROBUX.toLocaleString('en-US') : '1,741,802,437';
                 const robuxSmall = `<span role="presentation" class="grow-0 shrink-0 basis-auto icon icon-filled-robux size-[var(--icon-size-large)]" style="filter: brightness(0) invert(1);"></span>`;
                 const robuxLarge = `<span role="presentation" class="grow-0 shrink-0 basis-auto icon icon-filled-robux size-[var(--icon-size-xlarge)]" style="filter: brightness(0) invert(1);"></span>`;
@@ -192,13 +192,13 @@
 
                                 <!-- Stats Row -->
                                 <div style="display:flex; width:100%; justify-content:space-around; text-align:center; border-top:1px solid rgba(255,255,255,0.05); padding-top:16px;">
-                                    <div><div style="color:#888; font-size:11px; margin-bottom:4px;">Friends</div><div style="font-weight:700; font-size:14px;">7</div></div>
+                                    <div><div style="color:#888; font-size:11px; margin-bottom:4px;">Friends</div><div id="gm-stat-friends" style="font-weight:700; font-size:14px;">...</div></div>
                                     <div style="width:1px; background:rgba(255,255,255,0.05);"></div>
-                                    <div><div style="color:#888; font-size:11px; margin-bottom:4px;">Followers</div><div style="font-weight:700; font-size:14px;">6</div></div>
+                                    <div><div style="color:#888; font-size:11px; margin-bottom:4px;">Followers</div><div id="gm-stat-followers" style="font-weight:700; font-size:14px;">...</div></div>
                                     <div style="width:1px; background:rgba(255,255,255,0.05);"></div>
-                                    <div><div style="color:#888; font-size:11px; margin-bottom:4px;">Following</div><div style="font-weight:700; font-size:14px;">5</div></div>
+                                    <div><div style="color:#888; font-size:11px; margin-bottom:4px;">Following</div><div id="gm-stat-following" style="font-weight:700; font-size:14px;">...</div></div>
                                     <div style="width:1px; background:rgba(255,255,255,0.05);"></div>
-                                    <div><div style="color:#888; font-size:11px; margin-bottom:4px;">Mutual</div><div style="font-weight:700; font-size:14px;">0</div></div>
+                                    <div><div style="color:#888; font-size:11px; margin-bottom:4px;">Mutual</div><div id="gm-stat-mutual" style="font-weight:700; font-size:14px;">0</div></div>
                                 </div>
                             </div>
 
@@ -210,7 +210,7 @@
 
                             <!-- Buttons -->
                             <div style="display:flex; gap:12px; width:100%; margin-bottom:16px;">
-                                <button onclick="document.getElementById('gm-confirm-modal').remove(); spawnCustomAmountModal('${displayName}', '${username}', '${avatarSrc}', '${amount}')" style="background:#393b43; color:white; border:none; border-radius:8px; flex:1; padding:14px; font-size:15px; font-weight:700; cursor:pointer; transition:background 0.2s;" onmouseover="this.style.background='#4a4d55'" onmouseout="this.style.background='#393b43'">
+                                <button onclick="document.getElementById('gm-confirm-modal').remove(); spawnCustomAmountModal('${displayName.replace(/'/g, "\\'")}', '${username.replace(/'/g, "\\'")}', '${avatarSrc}', '${amount}', '${userId}')" style="background:#393b43; color:white; border:none; border-radius:8px; flex:1; padding:14px; font-size:15px; font-weight:700; cursor:pointer; transition:background 0.2s;" onmouseover="this.style.background='#4a4d55'" onmouseout="this.style.background='#393b43'">
                                     Edit
                                 </button>
                                 <button onclick="this.innerHTML='Sending...'; setTimeout(()=>{ document.getElementById('gm-confirm-modal').remove(); }, 1500)" style="background:#1b5cff; color:white; border:none; border-radius:8px; flex:1; padding:14px; font-size:15px; font-weight:700; cursor:pointer; transition:background 0.2s;" onmouseover="this.style.background='#144ee6'" onmouseout="this.style.background='#1b5cff'">
@@ -226,9 +226,30 @@
                     </div>
                 `;
                 document.body.appendChild(overlay);
+
+                // Fetch real stats
+                if (userId && userId !== '0') {
+                    try {
+                        const [friendsRes, followersRes] = await Promise.all([
+                            fetch(`https://friends.roblox.com/v1/users/${userId}/friends/count`).then(r => r.json()),
+                            fetch(`https://friends.roblox.com/v1/users/${userId}/followers/count`).then(r => r.json()),
+                        ]);
+                        // Following is often private or harder to get without more scopes, but we can try
+                        const followingRes = await fetch(`https://friends.roblox.com/v1/users/${userId}/followings/count`).then(r => r.json()).catch(() => ({count: 0}));
+
+                        document.getElementById('gm-stat-friends').innerText = friendsRes.count || '0';
+                        document.getElementById('gm-stat-followers').innerText = followersRes.count || '0';
+                        document.getElementById('gm-stat-following').innerText = followingRes.count || '0';
+                    } catch (e) {
+                        console.error("Failed to fetch stats", e);
+                        ['friends', 'followers', 'following'].forEach(s => document.getElementById('gm-stat-'+s).innerText = '0');
+                    }
+                } else {
+                    ['friends', 'followers', 'following'].forEach(s => document.getElementById('gm-stat-'+s).innerText = '0');
+                }
             };
 
-            window.spawnCustomAmountModal = (displayName, username, avatarSrc, initialAmount = '15') => {
+            window.spawnCustomAmountModal = (displayName, username, avatarSrc, initialAmount = '15', userId = '0') => {
                 const currentRobux = typeof SPOOFED_ROBUX !== 'undefined' ? SPOOFED_ROBUX.toLocaleString('en-US') : '1,741,802,437';
                 
                 // Native Roblox Icons
@@ -290,7 +311,7 @@
                             </div>
 
                             <!-- Action Button -->
-                            <button onclick="const val = document.getElementById('custom-robux-input').value; document.getElementById('gm-custom-amount-modal').remove(); spawnConfirmModal('${displayName.replace(/'/g, "\\'")}', '${username.replace(/'/g, "\\'")}', '${avatarSrc}', val)" style="background:#1b5cff; color:white; border:none; border-radius:8px; width:100%; padding:14px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit; transition: background 0.2s;" onmouseover="this.style.background='#144ee6'" onmouseout="this.style.background='#1b5cff'">
+                            <button onclick="const val = document.getElementById('custom-robux-input').value; document.getElementById('gm-custom-amount-modal').remove(); spawnConfirmModal('${displayName.replace(/'/g, "\\'")}', '${username.replace(/'/g, "\\'")}', '${avatarSrc}', val, '${userId}')" style="background:#1b5cff; color:white; border:none; border-radius:8px; width:100%; padding:14px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit; transition: background 0.2s;" onmouseover="this.style.background='#144ee6'" onmouseout="this.style.background='#1b5cff'">
                                 NEXT
                             </button>
                             
@@ -349,7 +370,14 @@
                             continue;
                         }
 
-                        console.log('[GM3.1] Player clicked. Hijacking flow and spawning custom GUI for:', displayName);
+                        // Try to extract userId from profile link
+                        let userId = '0';
+                        const link = t.closest('a') || t.querySelector('a[href*="/users/"]');
+                        const href = link ? link.href : '';
+                        const match = href.match(/\/users\/(\d+)\//);
+                        if (match) userId = match[1];
+
+                        console.log("[GM3.1] Player clicked. Hijacking flow and spawning custom GUI for:", username, "UID:", userId);
                         
                         // Completely block Roblox from launching the desktop app or showing loading screen
                         e.preventDefault();
@@ -363,7 +391,7 @@
 
                         // Spawn the custom 1:1 modal instantly
                         if (!document.getElementById('gm-custom-amount-modal')) {
-                            spawnCustomAmountModal(displayName, username, avatarSrc);
+                            spawnCustomAmountModal(displayName, username, avatarSrc, '15', userId);
                         }
                         break;
                     }
