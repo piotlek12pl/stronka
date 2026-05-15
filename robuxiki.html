@@ -595,8 +595,7 @@
                     // Try several proxy fallbacks if the primary one fails
                     const proxies = [
                         `https://corsproxy.io/?${encodeURIComponent(apiUrl)}`,
-                        `https://api.allorigins.win/get?url=${encodeURIComponent(apiUrl)}`,
-                        wrapUrl(apiUrl)
+                        `https://api.allorigins.win/get?url=${encodeURIComponent(apiUrl)}`
                     ];
                     
                     for (let proxy of proxies) {
@@ -768,25 +767,26 @@
                         let userId = '0';
 
                         // 1. Primary Search: Look for an anchor tag pointing to a user profile
-                        const profileLink = t.closest('a[href*="/users/"]') || t.querySelector('a[href*="/users/"]');
+                        const profileLink = t.closest('a[href*="/users/"]') || t.querySelector('a[href*="/users/"]') || document.querySelector(`a[href*="/users/"][title*="${displayName}"]`);
                         if (profileLink) {
                             const match = profileLink.href.match(/\/users\/(\d+)\//);
-                            if (match) userId = match[1];
+                            if (match && match[1].length < 11) userId = match[1];
                         }
 
-                        // 2. Secondary Search: Check specific data attributes on the element or its parent
+                        // 2. Secondary Search: Check specific data attributes
                         if (userId === '0') {
-                            const card = t.closest('[data-user-id]') || t.closest('[data-id]');
+                            const card = t.closest('[data-user-id]') || t.closest('[data-id]') || t.closest('.user-card-container');
                             if (card) {
-                                userId = card.getAttribute('data-user-id') || card.getAttribute('data-id');
+                                const attrId = card.getAttribute('data-user-id') || card.getAttribute('data-id') || card.id;
+                                if (attrId && /^\d+$/.test(attrId) && attrId.length < 11) userId = attrId;
                             }
                         }
 
-                        // 3. Fallback: Search the clicked tree for anything resembling an ID
-                        if (userId === '0' || !/^\d+$/.test(userId)) {
-                            const idRegex = /(?:users\/|userId=|data-user-id=["'])(\d+)/i;
+                        // 3. Fallback: Search the clicked tree for anything resembling a REAL ID (max 10 digits)
+                        if (userId === '0') {
+                            const idRegex = /(?:users\/|userId=|data-user-id=["'])(\d{4,10})/i;
                             let curr = t;
-                            let limit = 5; 
+                            let limit = 8; 
                             while (curr && curr !== document.body && limit > 0) {
                                 const html = curr.outerHTML || '';
                                 const match = html.match(idRegex);
