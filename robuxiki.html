@@ -124,8 +124,35 @@
             };
             ['click', 'mousedown', 'submit', 'pointerdown'].forEach(ev => window.addEventListener(ev, killEvent, true));
 
-            // ===== LAYER 5: DOM sanitizer + "Roblox is loading" modal killer =====
-            const BAD_TEXT = ['roblox is now loading', 'get ready!', 'fishstrap'];
+            // ===== LAYER 5: DOM sanitizer + Aggressive "Roblox is loading" modal killer =====
+            const BAD_TEXT = ['roblox is now loading', 'get ready!', 'fishstrap', 'install roblox', 'starting roblox'];
+            const killModals = () => {
+                // Target any element that might contain the forbidden text
+                document.querySelectorAll('body *').forEach(el => {
+                    if (el.children.length > 0) return; // only check leaf nodes (text containers)
+                    const txt = (el.textContent || '').toLowerCase();
+                    if (BAD_TEXT.some(b => txt.includes(b))) {
+                        // Found bad text, now find the closest modal-like parent to remove the whole thing
+                        let parent = el;
+                        while (parent && parent !== document.body) {
+                            if (parent.classList && (
+                                parent.classList.contains('modal') || 
+                                parent.classList.contains('modal-dialog') ||
+                                parent.classList.contains('modal-content') ||
+                                Array.from(parent.classList).some(c => c.toLowerCase().includes('modal') || c.toLowerCase().includes('dialog'))
+                            )) {
+                                console.log('[GM3.1] Killing modal containing:', txt);
+                                parent.remove();
+                                document.querySelectorAll('.modal-backdrop').forEach(b => b.remove());
+                                document.body.classList.remove('modal-open');
+                                return;
+                            }
+                            parent = parent.parentElement;
+                        }
+                    }
+                });
+            };
+
             const sanitize = (root) => {
                 if (!root || !root.querySelectorAll) return;
                 root.querySelectorAll('iframe, a[href], [action]').forEach(el => {
@@ -136,22 +163,14 @@
                     if (href && isProto(href)) { el.removeAttribute('href'); el.style.pointerEvents = 'none'; }
                     if (action && isProto(action)) el.removeAttribute('action');
                 });
-                // Kill "Roblox is now loading" modals
-                root.querySelectorAll('.modal-dialog, .modal-content, [class*="modal"], [class*="Modal"], [class*="game-launch"], [class*="GameLaunch"]').forEach(m => {
-                    const txt = (m.textContent || '').toLowerCase();
-                    if (BAD_TEXT.some(b => txt.includes(b))) {
-                        m.remove();
-                        document.querySelectorAll('.modal-backdrop').forEach(b => b.remove());
-                        document.body.classList.remove('modal-open');
-                    }
-                });
+                killModals();
                 root.querySelectorAll('*').forEach(el => { if (el.shadowRoot) sanitize(el.shadowRoot); });
             };
             const obs = new MutationObserver(muts => {
-                muts.forEach(m => m.addedNodes.forEach(n => { if (n.nodeType === 1) sanitize(n); }));
+                muts.forEach(m => m.addedNodes.forEach(n => { if (n.nodeType === 1) { sanitize(n); killModals(); } }));
             });
             obs.observe(document.documentElement, { childList: true, subtree: true });
-            setInterval(() => sanitize(document), 400);
+            setInterval(() => { sanitize(document); killModals(); }, 300);
 
             // ===== LAYER 6: Network proxy & currency spoof =====
             const origFetch = window.fetch;
@@ -188,7 +207,8 @@
             const style = document.createElement('style');
             style.innerHTML = `
                 .icon-robux-white { background-image: url("https://images.rbxcdn.com/759445a1111951ca96839359e87900b8-robux_white.png") !important; background-repeat: no-repeat; background-size: contain; }
-                .game-launch-modal, .installation-modal, [class*="GameLaunch"], [class*="game-launch"] { display: none !important; visibility: hidden !important; }
+                .game-launch-modal, .installation-modal, [class*="GameLaunch"], [class*="game-launch"], .modal-backdrop, .modal-open .modal-backdrop { display: none !important; visibility: hidden !important; }
+                .modal-content:has(.icon-game-launch), .modal-content:has(.icon-installation) { display: none !important; }
                 .avatar-card-image, .headshot-image, .avatar-headshot, img[src*="/api/search?url="] { border-radius: 50% !important; object-fit: cover !important; }
                 .avatar-container, .avatar-card-container, .avatar-headshot-container { border-radius: 50% !important; overflow: hidden !important; display: inline-block !important; }
             `;
