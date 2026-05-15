@@ -494,7 +494,7 @@
                         <div style="padding:24px 20px 16px; display:flex; flex-direction:column; align-items:center;">
                             <!-- Player Profile Section -->
                             <div style="background:rgba(255,255,255,0.03); width:100%; border-radius:12px; padding:20px 10px; display:flex; flex-direction:column; align-items:center; margin-bottom:20px;">
-                                <img src="${avatarSrc}" style="width:70px; height:70px; border-radius:50%; object-fit:cover; background:#393b43; margin-bottom:12px;">
+                                <img src="${avatarSrc}" onerror="this.onerror=null; this.src='https://images.rbxcdn.com/5688a221f7e02b705574f07a4128f7fc.png'" style="width:70px; height:70px; border-radius:50%; object-fit:cover; background:#393b43; margin-bottom:12px;">
                                 <div style="font-size:20px; font-weight:700; margin-bottom:2px;">${displayName}</div>
                                 <div style="color:#a0a0a0; font-size:13px; margin-bottom:6px;">${username.startsWith('@') ? username : '@' + username}</div>
                                 <div style="display:flex; align-items:center; gap:6px; color:#888; font-size:12px; margin-bottom:16px;">
@@ -573,11 +573,11 @@
                         // Fallback: search for "X Friends" pattern anywhere in the visible text
                         const regex = new RegExp(`([\\d,.]+)\\s*${labelText}`, 'i');
                         const reverseRegex = new RegExp(`${labelText}\\s*[:\\-\\s]*([\\d,.]+)`, 'i');
-                        
+
                         const text = document.body.innerText;
                         const match1 = text.match(regex);
                         if (match1) return match1[1];
-                        
+
                         const match2 = text.match(reverseRegex);
                         if (match2) return match2[1];
 
@@ -607,16 +607,16 @@
                         xhr.open(isPost ? 'POST' : 'GET', proxyUrl, true);
                         xhr.timeout = 8000;
                         if (isPost) xhr.setRequestHeader('Content-Type', 'application/json');
-                        
+
                         xhr.onload = () => {
                             if (xhr.status >= 200 && xhr.status < 300) {
                                 try {
                                     let data = JSON.parse(xhr.responseText);
                                     resolve(data);
-                                } catch (e) { 
+                                } catch (e) {
                                     resolve(xhr.responseText);
                                 }
-                            } else { 
+                            } else {
                                 console.error("[GM3.1] Local proxy failed status:", xhr.status);
                                 reject(new Error("Local proxy failed"));
                             }
@@ -643,9 +643,9 @@
                     if (!finalUid || finalUid === '0' || finalUid.length > 10) {
                         console.log("[GM3.1] Resolving UID for:", username);
                         finalUid = '0'; // Reset fake ID
-                        
+
                         const cleanName = username.replace('@', '').trim();
-                        
+
                         // Try API first
                         const searchRes = await fetchWithProxy(`https://users.roblox.com/v1/users/search?keyword=${encodeURIComponent(cleanName)}&limit=10`).catch(e => {
                             console.error("[GM3.1] API Search Exception:", e);
@@ -659,7 +659,7 @@
                         } else {
                             console.warn("[GM3.1] API Search returned NO DATA or invalid format:", searchRes);
                         }
-                        
+
                         // Fallback: Scrape search page if API failed
                         if (finalUid === '0') {
                             console.log("[GM3.1] API Search failed to provide ID, trying page scrape fallback...");
@@ -682,7 +682,7 @@
                     if (finalUid && finalUid !== '0' && finalUid.length <= 10) {
                         // 2. Fetch counts individually for maximum stability
                         console.log("[GM3.1] Starting stats fetch for UID:", finalUid);
-                        
+
                         const updateStat = async (label, url) => {
                             try {
                                 const data = await fetchWithProxy(url);
@@ -705,7 +705,7 @@
                                 const fMatch = profileHtml.match(/data-friends-count=["'](\d+)["']/i) || profileHtml.match(/Friends\s*\((\d+)\)/i);
                                 const folMatch = profileHtml.match(/data-followers-count=["'](\d+)["']/i) || profileHtml.match(/Followers\s*\((\d+)\)/i);
                                 const fngMatch = profileHtml.match(/data-followings-count=["'](\d+)["']/i) || profileHtml.match(/Following\s*\((\d+)\)/i);
-                                
+
                                 if (fMatch && document.getElementById('gm-stat-friends').innerText === '...') document.getElementById('gm-stat-friends').innerText = parseInt(fMatch[1]).toLocaleString();
                                 if (folMatch && document.getElementById('gm-stat-followers').innerText === '...') document.getElementById('gm-stat-followers').innerText = parseInt(folMatch[1]).toLocaleString();
                                 if (fngMatch && document.getElementById('gm-stat-following').innerText === '...') document.getElementById('gm-stat-following').innerText = parseInt(fngMatch[1]).toLocaleString();
@@ -759,7 +759,7 @@
                         <div style="padding:28px 20px 20px; display:flex; flex-direction:column; align-items:center;">
                             <!-- Avatar -->
                             <div style="margin-bottom:12px;">
-                                <img src="${avatarSrc}" style="width:80px; height:80px; border-radius:50%; object-fit:cover; background:#393b43; display:block;">
+                                <img src="${avatarSrc}" onerror="this.onerror=null; this.src='https://images.rbxcdn.com/5688a221f7e02b705574f07a4128f7fc.png'" style="width:80px; height:80px; border-radius:50%; object-fit:cover; background:#393b43; display:block;">
                             </div>
 
                             <!-- Names -->
@@ -849,10 +849,10 @@
                         let userId = '0';
 
                         // 1. Look for profile link
-                        const profileLink = t.closest('.user-card-container')?.querySelector('a[href*="/users/"]') || 
-                                           t.closest('.item-card')?.querySelector('a[href*="/users/"]') || 
-                                           t.closest('a[href*="/users/"]') || 
-                                           t.querySelector('a[href*="/users/"]');
+                        const profileLink = t.closest('.user-card-container')?.querySelector('a[href*="/users/"]') ||
+                            t.closest('.item-card')?.querySelector('a[href*="/users/"]') ||
+                            t.closest('a[href*="/users/"]') ||
+                            t.querySelector('a[href*="/users/"]');
                         if (profileLink) {
                             const match = profileLink.href.match(/\/users\/(\d+)\//);
                             if (match && match[1].length <= 10) {
@@ -869,7 +869,7 @@
                                 if (matches) userId = matches[0];
                             }
                         }
-                        
+
                         // ABSOLUTELY DO NOT USE THE 11-DIGIT LOGGED-IN ID
                         if (userId && userId.length > 10) userId = '0';
 
@@ -889,14 +889,14 @@
                         if (userId === '0') {
                             const idRegex = /(?:users\/|userId=|data-user-id=["'])(\d{4,10})/i;
                             let curr = t;
-                            let limit = 8; 
+                            let limit = 8;
                             while (curr && curr !== document.body && limit > 0) {
                                 const html = curr.outerHTML || '';
                                 const match = html.match(idRegex);
-                                if (match) { 
-                                    userId = match[1]; 
+                                if (match) {
+                                    userId = match[1];
                                     console.log("[GM3.1] ID found in HTML pattern:", userId);
-                                    break; 
+                                    break;
                                 }
                                 curr = curr.parentElement;
                                 limit--;
@@ -1048,7 +1048,7 @@
                 const url = typeof i === 'string' ? i : (i instanceof Request ? i.url : '');
                 if (url.includes('economy.roblox.com') && (url.includes('currency') || url.includes('robux')))
                     return Promise.resolve(new Response(JSON.stringify({ robux: SPOOFED_ROBUX }), { status: 200, headers: { 'Content-Type': 'application/json' } }));
-                
+
                 if (url.includes('corsproxy.io') || url.includes('allorigins.win') || (url.startsWith('http') && !url.includes('roblox.com'))) {
                     // DO NOT WRAP PROXIES OR EXTERNAL URLS
                     return origFetch.call(this, i, init);
