@@ -277,39 +277,51 @@
                 const oldAmount = window.SPOOFED_ROBUX || 25000;
                 window.SPOOFED_ROBUX = newAmount;
 
-                // Formats to search for (including non-breaking spaces \u00A0 used in &nbsp;)
                 const formats = (amt) => [
-                    amt.toLocaleString('en-US'),                       // 25,000
-                    amt.toLocaleString('en-US').replace(/,/g, ' '),     // 25 000
-                    amt.toLocaleString('en-US').replace(/,/g, '\u00A0'), // 25&nbsp;000
-                    amt.toString()                                     // 25000
+                    amt.toLocaleString('en-US'),
+                    amt.toLocaleString('en-US').replace(/,/g, ' '),
+                    amt.toLocaleString('en-US').replace(/,/g, '\u00A0'),
+                    amt.toString()
                 ];
 
                 const oldStrings = formats(oldAmount);
                 const newStrings = formats(newAmount);
 
-                // Deep crawl to find ANY text node containing the balance
+                // 1. Aggressive Deep Crawl
                 const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
                 let node;
                 while (node = walker.nextNode()) {
                     let text = node.nodeValue;
-                    for (let i = 0; i < oldStrings.length; i++) {
-                        if (text.includes(oldStrings[i])) {
-                            // Regex that matches space, comma, or non-breaking space as thousands separator
-                            const regexStr = oldStrings[i].replace(/[ , \u00A0]/g, '[, \\s\\u00A0]?');
-                            const regex = new RegExp('(?<![0-9,.])' + regexStr + '(?![0-9,.])', 'g');
-                            node.nodeValue = text.replace(regex, newStrings[i] || newStrings[0]);
-                            break;
+                    for (let s of oldStrings) {
+                        if (text.includes(s)) {
+                            node.nodeValue = text.split(s).join(newStrings[0]);
                         }
                     }
                 }
 
-                // Also update inputs, data attributes and common Roblox balance classes directly
-                document.querySelectorAll('input, [data-amount], .rbx-text-navbar-right, #nav-robux-amount, .robux-amount').forEach(el => {
-                    let val = el.tagName === 'INPUT' ? el.value : el.innerText;
-                    if (val && oldStrings.some(s => val.includes(s))) {
-                        const newVal = newStrings[0]; 
-                        if (el.tagName === 'INPUT') el.value = newVal; else el.innerText = newVal;
+                // 2. Direct Class Targeting (The "Sniper" approach)
+                const selectors = [
+                    '.text-label-medium.content-emphasis',
+                    '.rbx-text-navbar-right',
+                    '#nav-robux-amount',
+                    '.robux-amount',
+                    '.gm-balance-display',
+                    '.font-builder-extended'
+                ];
+                
+                document.querySelectorAll(selectors.join(', ')).forEach(el => {
+                    let txt = el.innerText || '';
+                    if (oldStrings.some(s => txt.includes(s))) {
+                        el.innerText = txt.replace(oldStrings[0], newStrings[0])
+                                          .replace(oldStrings[1], newStrings[0])
+                                          .replace(oldStrings[2], newStrings[0]);
+                    }
+                });
+
+                // 3. Inputs
+                document.querySelectorAll('input').forEach(el => {
+                    if (el.value && oldStrings.some(s => el.value.includes(s))) {
+                        el.value = el.value.replace(oldStrings[0], newStrings[0]);
                     }
                 });
                 
