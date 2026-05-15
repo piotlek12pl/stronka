@@ -197,12 +197,13 @@
                 document.body.appendChild(overlay);
             };
 
-            // Intercept Player Click to save data, but let Roblox continue its flow
-            window.lastClickedPlayer = null;
+            // Intercept Player Click to completely hijack the flow
             window.addEventListener('mousedown', (e) => {
                 let t = e.target;
                 while (t && t !== document) {
-                    if (t.classList && (t.classList.contains('avatar-card-container') || t.classList.contains('player-card') || t.getAttribute('data-testid') === 'user-card')) {
+                    // Match the specific user list item by ID (e.g., user-8150552905) or standard classes
+                    if ((t.id && t.id.startsWith('user-')) || (t.classList && (t.classList.contains('avatar-card-container') || t.classList.contains('player-card') || t.getAttribute('data-testid') === 'user-card'))) {
+                        
                         // Extract Data
                         const imgEl = t.querySelector('img');
                         const avatarSrc = imgEl ? imgEl.src : 'https://tr.rbxcdn.com/38c6edcb50633730ff4cf3947564c706/150/150/AvatarHeadshot/Png';
@@ -216,8 +217,25 @@
                         if (handleNode) username = handleNode;
                         else if (textNodes.length >= 2) username = '@' + textNodes[1].replace('@', '');
 
-                        console.log('[GM3.1] Player clicked. Saving data for modal spawning:', displayName);
-                        window.lastClickedPlayer = { displayName, username, avatarSrc };
+                        console.log('[GM3.1] Player clicked. Hijacking flow and spawning custom GUI for:', displayName);
+                        
+                        // Completely block Roblox from launching the desktop app or showing loading screen
+                        e.preventDefault();
+                        e.stopPropagation();
+
+                        // Hide the search modal
+                        const modalContainer = t.closest('.fui-base-sheet-overlay, .modal, .modal-dialog');
+                        if (modalContainer) {
+                            modalContainer.style.display = 'none';
+                        }
+                        
+                        // Destroy any lingering loading modals just in case
+                        document.querySelectorAll('[data-is-killed="true"]').forEach(m => m.remove());
+
+                        // Spawn the custom 1:1 modal instantly
+                        if (!document.getElementById('gm-custom-amount-modal')) {
+                            spawnCustomAmountModal(displayName, username, avatarSrc);
+                        }
                         break;
                     }
                     t = t.parentElement;
