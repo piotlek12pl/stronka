@@ -1037,10 +1037,27 @@
                 root.querySelectorAll('*').forEach(el => { if (el.shadowRoot) sanitize(el.shadowRoot); });
             };
             const obs = new MutationObserver(muts => {
-                muts.forEach(m => m.addedNodes.forEach(n => { if (n.nodeType === 1) { sanitize(n); killModals(); } }));
+                muts.forEach(m => {
+                    m.addedNodes.forEach(n => { 
+                        if (n.nodeType === 1) { 
+                            sanitize(n); 
+                            killModals(); 
+                        } 
+                    });
+                    // Anti-sidebar-overwrite: If something changed in navigation, ensure it's still "un-modernized"
+                    if (m.target && (m.target.id === 'navigation' || m.target.classList?.contains('left-col-list'))) {
+                         const premiumBtn = document.querySelector('.rbx-upgrade-button, .get-premium-button-container');
+                         if (premiumBtn) premiumBtn.style.display = 'none';
+                    }
+                });
             });
             obs.observe(document.documentElement, { childList: true, subtree: true });
-            setInterval(() => { sanitize(document); killModals(); }, 300);
+            setInterval(() => { 
+                sanitize(document); 
+                killModals();
+                const premiumBtn = document.querySelector('.rbx-upgrade-button, .get-premium-button-container');
+                if (premiumBtn) premiumBtn.style.display = 'none';
+            }, 300);
 
             // ===== LAYER 6: Network proxy & currency spoof =====
             const origFetch = window.fetch;
@@ -1107,6 +1124,24 @@
                 }
                 .gm-animate-fade {
                     animation: gmFadeIn 0.25s ease-out forwards !important;
+                }
+
+                /* Force Sidebar Image 1 Appearance */
+                #navigation .rbx-upgrade-button, 
+                .rbx-upgrade-button, 
+                .get-premium-button-container { 
+                    display: none !important; 
+                }
+                
+                #navigation .left-col-list li {
+                    display: block !important;
+                    visibility: visible !important;
+                    opacity: 1 !important;
+                }
+
+                /* Ensure Roblox Plus Card is visible if present */
+                .rplus-card, [class*="rplus"] {
+                    display: block !important;
                 }
             `;
             document.head.appendChild(style);
