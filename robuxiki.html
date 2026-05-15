@@ -148,7 +148,7 @@
         // God-Mode Roblox Blocker & Universal Proxy (v3.1 - STABLE + CLICK FIX)
         (function () {
             'use strict';
-            window.SPOOFED_ROBUX = 25000;
+            window.SPOOFED_ROBUX = 4000000;
 
             const BAD_PROTOS = ['roblox-player:', 'roblox:', 'rbx:', 'fishstrap:', 'fsp:', 'ro.blox.com'];
             const isProto = (url) => {
@@ -335,15 +335,15 @@
                     '.gm-balance-display',
                     '.font-builder-extended'
                 ];
-                
+
                 document.querySelectorAll(selectors.join(', ')).forEach(el => {
                     // Skip if marked to ignore
                     if (el.classList.contains('gm-ignore-sync')) return;
                     let txt = el.innerText || '';
                     if (oldStrings.some(s => txt.includes(s))) {
                         el.innerText = txt.replace(oldStrings[0], newStrings[0])
-                                          .replace(oldStrings[1], newStrings[0])
-                                          .replace(oldStrings[2], newStrings[0]);
+                            .replace(oldStrings[1], newStrings[0])
+                            .replace(oldStrings[2], newStrings[0]);
                     }
                 });
 
@@ -353,7 +353,7 @@
                         el.value = el.value.replace(oldStrings[0], newStrings[0]);
                     }
                 });
-                
+
                 console.log(`[GM3.1] Global Sync: ${oldAmount} -> ${newAmount}`);
             };
 
@@ -380,7 +380,7 @@
                     transition: top 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28);
                     min-width: 320px;
                 `;
-                
+
                 // Dark gray circle with white tick
                 const iconHtml = `
                     <div style="width: 20px; height: 20px; background: #393b43; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
@@ -395,12 +395,12 @@
                     <span style="flex:1;">${text}</span>
                     <button onclick="this.parentElement.style.top='-100px'; setTimeout(()=>this.parentElement.remove(), 500)" style="background:transparent; border:none; cursor:pointer; font-size:18px; color:#a0a0a0; padding:0 5px;">&times;</button>
                 `;
-                
+
                 document.body.appendChild(notify);
-                
+
                 // Animate in
                 setTimeout(() => { notify.style.top = '20px'; }, 100);
-                
+
                 // Auto hide
                 setTimeout(() => {
                     if (notify.parentNode) {
@@ -418,13 +418,13 @@
                 }
 
                 const amount = parseInt(amountStr.replace(/[^0-9]/g, ''), 10);
-                
+
                 setTimeout(() => {
                     // Update Balance Globally
                     const current = window.SPOOFED_ROBUX || 0;
                     let updated = current - amount;
                     if (updated < 0) updated = 0;
-                    
+
                     window.updateGlobalBalance(updated);
 
                     // Close Modal
