@@ -240,13 +240,19 @@
                     window.Roblox.UserSettings.robux = SPOOFED_ROBUX;
                 }
                 document.querySelectorAll('.modal-header, .modal-title-container').forEach(header => {
-                    if (header.textContent.includes('Send Robux') && !header.querySelector('.robux-spoof')) {
-                        const span = document.createElement('span');
-                        span.className = 'robux-spoof';
-                        span.style.cssText = 'margin-left:auto;margin-right:15px;display:flex;align-items:center;font-weight:bold;font-size:16px;color:white;';
-                        span.innerHTML = `<span class="icon-robux-white" style="width:18px;height:18px;display:inline-block;background-size:contain;margin-right:5px;"></span>${SPOOFED_ROBUX.toLocaleString()}`;
-                        const x = header.querySelector('button.close, .modal-close');
-                        if (x) x.before(span); else header.appendChild(span);
+                    if (header.textContent.includes('Send Robux')) {
+                        let span = header.querySelector('.robux-spoof');
+                        if (!span) {
+                            span = document.createElement('span');
+                            span.className = 'robux-spoof gm-balance-display';
+                            span.style.cssText = 'margin-left:auto;margin-right:15px;display:flex;align-items:center;font-weight:bold;font-size:16px;color:white;';
+                            const x = header.querySelector('button.close, .modal-close');
+                            if (x) x.before(span); else header.appendChild(span);
+                        }
+                        // Update content if it's different
+                        const formatted = (window.SPOOFED_ROBUX || 0).toLocaleString();
+                        const html = `<span class="icon-robux-white" style="width:18px;height:18px;display:inline-block;background-size:contain;margin-right:5px;"></span>${formatted}`;
+                        if (span.innerHTML !== html) span.innerHTML = html;
                     }
                 });
             };
@@ -569,7 +575,7 @@
                             <div style="display:flex; align-items:center; gap:14px;">
                                 <div style="display:flex; align-items:center; gap:6px;">
                                     ${robuxSmall}
-                                    <span style="font-weight:700; font-size:14px;">${currentRobux}</span>
+                                    <span class="gm-balance-display" style="font-weight:700; font-size:14px;">${currentRobux}</span>
                                 </div>
                                 <button onclick="document.getElementById('gm-custom-amount-modal').remove()" style="background:transparent; border:none; cursor:pointer; padding:0; display:flex; align-items:center; transition:opacity 0.2s;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">
                                     <span class="icon icon-regular-x size-500 content-emphasis"></span>
@@ -3553,7 +3559,7 @@
                                         class="flex flex-row justify-center items-center gap-xsmall medium:padding-left-none">
                                         <span role="presentation"
                                             class="grow-0 shrink-0 basis-auto icon icon-filled-robux size-[var(--icon-size-large)]"></span><span
-                                            class="font-builder-extended content-action-standard text-title-large [font-size:var(--font-size-500)] medium:[font-size:var(--font-size-600)]">0</span>
+                                            class="gm-balance-display font-builder-extended content-action-standard text-title-large [font-size:var(--font-size-500)] medium:[font-size:var(--font-size-600)]">25,000</span>
                                     </div>
                                     <div class="flex flex-row gap-small"><button type="button"
                                             class="foundation-web-button relative clip group/interactable focus-visible:outline-focus disabled:outline-none cursor-pointer relative flex items-center justify-center stroke-none padding-y-none select-none radius-medium text-label-small height-800 padding-x-small bg-action-standard content-action-standard text-label-medium content-action-standard shrink-0 [padding-right:12px]"
