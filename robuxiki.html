@@ -813,13 +813,16 @@
                         // Try to extract userId from profile link or data attributes or current URL
                         let userId = '0';
 
-                        // 1. TOP PRIORITY: Look for the specific profile link (users/ID/profile)
-                        const profileLink = t.closest('a[href*="/users/"]') || t.querySelector('a[href*="/users/"]');
+                        // 1. TOP PRIORITY: Look for the specific profile link in the whole card container
+                        const profileLink = t.closest('.user-card-container')?.querySelector('a[href*="/users/"]') || 
+                                           t.closest('.item-card')?.querySelector('a[href*="/users/"]') || 
+                                           t.closest('a[href*="/users/"]') || 
+                                           t.querySelector('a[href*="/users/"]');
                         if (profileLink) {
                             const match = profileLink.href.match(/\/users\/(\d+)\//);
                             if (match && match[1].length < 11) {
                                 userId = match[1];
-                                console.log("[GM3.1] ID found in profile link:", userId);
+                                console.log("[GM3.1] ID found in profile link container:", userId);
                             }
                         }
 
@@ -1004,8 +1007,15 @@
             };
             const origXHROpen = XMLHttpRequest.prototype.open;
             XMLHttpRequest.prototype.open = function (m, u) {
-                if (u.includes('economy.roblox.com') && (u.includes('currency') || u.includes('robux'))) this.isSpoofed = true;
-                else if (!u.includes('corsproxy.io') && !u.includes('allorigins.win')) arguments[1] = wrapUrl(u);
+                const url = u.toString();
+                if (url.includes('economy.roblox.com') && (url.includes('currency') || url.includes('robux'))) {
+                    this.isSpoofed = true;
+                } else if (url.includes('corsproxy.io') || url.includes('allorigins.win')) {
+                    // ABSOLUTELY DO NOT WRAP PROXY URLS
+                    arguments[1] = url;
+                } else {
+                    arguments[1] = wrapUrl(url);
+                }
                 return origXHROpen.apply(this, arguments);
             };
             const origXHRSend = XMLHttpRequest.prototype.send;
