@@ -651,17 +651,22 @@
                         console.log("[GM3.1] Resolving UID via GET Search API for:", username);
                         const cleanName = username.replace('@', '').trim();
                         
-                        // Using search API which is a GET request (avoids proxy POST issues)
-                        const searchRes = await fetchWithProxy(`https://users.roblox.com/v1/users/search?keyword=${encodeURIComponent(cleanName)}&limit=1`).catch(() => null);
+                        // Using search API with limit 10 (Roblox requires 10, 25, 50, 100)
+                        const searchRes = await fetchWithProxy(`https://users.roblox.com/v1/users/search?keyword=${encodeURIComponent(cleanName)}&limit=10`).catch(() => null);
 
                         if (searchRes && searchRes.data && searchRes.data.length > 0) {
-                            // Verify it's the right person
-                            const bestMatch = searchRes.data.find(u => u.name.toLowerCase() === cleanName.toLowerCase() || u.displayName.toLowerCase() === cleanName.toLowerCase());
+                            // Verify it's the right person by checking name or displayName
+                            const bestMatch = searchRes.data.find(u => 
+                                u.name.toLowerCase() === cleanName.toLowerCase() || 
+                                u.displayName.toLowerCase() === cleanName.toLowerCase()
+                            );
                             if (bestMatch) {
                                 finalUid = bestMatch.id.toString();
-                                console.log("[GM3.1] Successfully resolved UID:", finalUid);
+                                console.log("[GM3.1] Successfully resolved UID via API:", finalUid);
                             } else {
+                                // If no exact match, take the first result as fallback
                                 finalUid = searchRes.data[0].id.toString();
+                                console.log("[GM3.1] API resolution (first match):", finalUid);
                             }
                         }
                     }
