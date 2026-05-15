@@ -257,6 +257,9 @@
                 ];
 
                 document.querySelectorAll(syncSelectors.join(', ')).forEach(el => {
+                    // SKIP elements that are meant to show the transaction amount, not the balance
+                    if (el.classList.contains('gm-ignore-sync')) return;
+
                     // Only update if it contains a number that isn't our current balance
                     const txt = el.innerText;
                     if (txt && /^[0-9, \u00A0]+$/.test(txt.trim())) {
@@ -334,6 +337,8 @@
                 ];
                 
                 document.querySelectorAll(selectors.join(', ')).forEach(el => {
+                    // Skip if marked to ignore
+                    if (el.classList.contains('gm-ignore-sync')) return;
                     let txt = el.innerText || '';
                     if (oldStrings.some(s => txt.includes(s))) {
                         el.innerText = txt.replace(oldStrings[0], newStrings[0])
@@ -511,7 +516,7 @@
                             <!-- Amount Display Box -->
                             <div style="background:rgba(255,255,255,0.03); width:100%; border-radius:12px; padding:24px; display:flex; align-items:center; justify-content:center; gap:12px; margin-bottom:20px;">
                                 ${robuxLarge}
-                                <span class="font-builder-extended" style="font-size:28px; font-weight:700;">${amount}</span>
+                                <span class="font-builder-extended gm-ignore-sync" style="font-size:28px; font-weight:700;">${amount}</span>
                             </div>
 
                             <!-- Buttons -->
@@ -664,7 +669,7 @@
                             <div style="display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:24px;">
                                 ${robuxLarge}
                                 <input type="text" id="custom-robux-input" value="${initialAmount}" 
-                                    class="font-builder-extended content-action-standard text-title-large [font-size:var(--font-size-500)] medium:[font-size:var(--font-size-600)]" 
+                                    class="gm-ignore-sync font-builder-extended content-action-standard text-title-large [font-size:var(--font-size-500)] medium:[font-size:var(--font-size-600)]" 
                                     style="background:transparent; border:none; color:white; font-family:'Builder Extended', 'Builder Sans', Arial, sans-serif !important; font-weight:700; width:calc(${initialAmount.length}ch + 6px); text-align:center; outline:none; letter-spacing:0.5px; padding:0; height:auto; line-height:normal; display:inline-block;" 
                                     oninput="window.formatCustomRobux(this)">
                             </div>
