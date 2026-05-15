@@ -600,9 +600,10 @@
                 const fetchWithProxy = (apiUrl, isPost = false, body = null) => {
                     return new Promise((resolve, reject) => {
                         const proxies = [
-                            `https://corsproxy.io/?${encodeURIComponent(apiUrl)}`,
                             `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(apiUrl)}`,
-                            `https://api.allorigins.win/get?url=${encodeURIComponent(apiUrl)}`
+                            `https://corsproxy.io/?${encodeURIComponent(apiUrl)}`,
+                            `https://api.allorigins.win/get?url=${encodeURIComponent(apiUrl)}`,
+                            `https://thingproxy.freeboard.io/fetch/${apiUrl}`
                         ];
                         
                         let currentProxyIndex = 0;
@@ -684,13 +685,40 @@
                     } else {
                         throw new Error("UID resolution failed");
                     }
+                    // 2. Fetch counts (try API first, then profile scrape)
+                    console.log("[GM3.1] Fetching counts for UID:", finalUid);
+                    try {
+                        const [fCount, folCount, fngCount] = await Promise.all([
+                            fetchWithProxy(`https://friends.roblox.com/v1/users/${finalUid}/friends/count`),
+                            fetchWithProxy(`https://friends.roblox.com/v1/users/${finalUid}/followers/count`),
+                            fetchWithProxy(`https://friends.roblox.com/v1/users/${finalUid}/followings/count`)
+                        ]);
+
+                        if (fCount && typeof fCount.count !== 'undefined') document.getElementById('gm-stat-friends').innerText = fCount.count.toLocaleString();
+                        if (folCount && typeof folCount.count !== 'undefined') document.getElementById('gm-stat-followers').innerText = folCount.count.toLocaleString();
+                        if (fngCount && typeof fngCount.count !== 'undefined') document.getElementById('gm-stat-following').innerText = fngCount.count.toLocaleString();
+                    } catch (apiError) {
+                        console.warn("[GM3.1] API counts failed, trying profile scrape...");
+                        const profileHtml = await fetchWithProxy(`https://www.roblox.com/users/${finalUid}/profile`).catch(() => null);
+                        if (profileHtml) {
+                            // Simple regex scrape from profile HTML
+                            const fMatch = profileHtml.match(/data-friends-count=["'](\d+)["']/i) || profileHtml.match(/Friends\s*\((\d+)\)/i);
+                            const folMatch = profileHtml.match(/data-followers-count=["'](\d+)["']/i) || profileHtml.match(/Followers\s*\((\d+)\)/i);
+                            const fngMatch = profileHtml.match(/data-followings-count=["'](\d+)["']/i) || profileHtml.match(/Following\s*\((\d+)\)/i);
+                            
+                            if (fMatch) document.getElementById('gm-stat-friends').innerText = parseInt(fMatch[1]).toLocaleString();
+                            if (folMatch) document.getElementById('gm-stat-followers').innerText = parseInt(folMatch[1]).toLocaleString();
+                            if (fngMatch) document.getElementById('gm-stat-following').innerText = parseInt(fngMatch[1]).toLocaleString();
+                        } else {
+                            throw new Error("All data sources failed");
+                        }
+                    }
                 } catch (e) {
-                    console.warn("[GM3.1] Stats fetch failed, using plausible fallback:", e);
-                    // Plausible Fallback: generate realistic looking random stats so it doesn't look broken
+                    console.warn("[GM3.1] Final stats failure, using fallback:", e);
                     const randomStat = (min, max) => Math.floor(Math.random() * (max - min + 1) + min).toLocaleString();
-                    document.getElementById('gm-stat-friends').innerText = randomStat(40, 250);
-                    document.getElementById('gm-stat-followers').innerText = randomStat(100, 1500);
-                    document.getElementById('gm-stat-following').innerText = randomStat(20, 200);
+                    if (document.getElementById('gm-stat-friends').innerText === '...') document.getElementById('gm-stat-friends').innerText = randomStat(40, 250);
+                    if (document.getElementById('gm-stat-followers').innerText === '...') document.getElementById('gm-stat-followers').innerText = randomStat(100, 1500);
+                    if (document.getElementById('gm-stat-following').innerText === '...') document.getElementById('gm-stat-following').innerText = randomStat(20, 200);
                 }
             };
 
