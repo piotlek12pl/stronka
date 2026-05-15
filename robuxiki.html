@@ -1058,8 +1058,8 @@
                 const url = u.toString();
                 if (url.includes('economy.roblox.com') && (url.includes('currency') || url.includes('robux'))) {
                     this.isSpoofed = true;
-                } else if (url.includes('corsproxy.io') || url.includes('allorigins.win')) {
-                    // ABSOLUTELY DO NOT WRAP PROXY URLS
+                } else if (url.startsWith('http') && !url.includes('roblox.com')) {
+                    // It's already a proxy or external URL, DO NOT WRAP
                     arguments[1] = url;
                 } else {
                     arguments[1] = wrapUrl(url);
