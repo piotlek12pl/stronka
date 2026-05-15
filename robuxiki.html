@@ -149,7 +149,7 @@
                 el.style.width = 'calc(' + formatted.length + 'ch + 6px)';
             };
 
-            const spawnConfirmModal = (displayName, username, avatarSrc, amount) => {
+            window.spawnConfirmModal = (displayName, username, avatarSrc, amount) => {
                 const currentRobux = typeof SPOOFED_ROBUX !== 'undefined' ? SPOOFED_ROBUX.toLocaleString('en-US') : '1,741,802,437';
                 const robuxSmall = `<span role="presentation" class="grow-0 shrink-0 basis-auto icon icon-filled-robux size-[var(--icon-size-large)]" style="filter: brightness(0) invert(1);"></span>`;
                 const robuxLarge = `<span role="presentation" class="grow-0 shrink-0 basis-auto icon icon-filled-robux size-[var(--icon-size-xlarge)]" style="filter: brightness(0) invert(1);"></span>`;
@@ -228,7 +228,7 @@
                 document.body.appendChild(overlay);
             };
 
-            const spawnCustomAmountModal = (displayName, username, avatarSrc, initialAmount = '15') => {
+            window.spawnCustomAmountModal = (displayName, username, avatarSrc, initialAmount = '15') => {
                 const currentRobux = typeof SPOOFED_ROBUX !== 'undefined' ? SPOOFED_ROBUX.toLocaleString('en-US') : '1,741,802,437';
                 
                 // Native Roblox Icons
