@@ -813,23 +813,29 @@
                         // Try to extract userId from profile link or data attributes or current URL
                         let userId = '0';
 
-                        // 1. Primary Search: Look for an anchor tag pointing to a user profile
-                        const profileLink = t.closest('a[href*="/users/"]') || t.querySelector('a[href*="/users/"]') || document.querySelector(`a[href*="/users/"][title*="${displayName}"]`);
+                        // 1. TOP PRIORITY: Look for the specific profile link (users/ID/profile)
+                        const profileLink = t.closest('a[href*="/users/"]') || t.querySelector('a[href*="/users/"]');
                         if (profileLink) {
                             const match = profileLink.href.match(/\/users\/(\d+)\//);
-                            if (match && match[1].length < 11) userId = match[1];
+                            if (match && match[1].length < 11) {
+                                userId = match[1];
+                                console.log("[GM3.1] ID found in profile link:", userId);
+                            }
                         }
 
-                        // 2. Secondary Search: Check specific data attributes
+                        // 2. SECOND PRIORITY: Check data attributes
                         if (userId === '0') {
                             const card = t.closest('[data-user-id]') || t.closest('[data-id]') || t.closest('.user-card-container');
                             if (card) {
                                 const attrId = card.getAttribute('data-user-id') || card.getAttribute('data-id') || card.id;
-                                if (attrId && /^\d+$/.test(attrId) && attrId.length < 11) userId = attrId;
+                                if (attrId && /^\d+$/.test(attrId) && attrId.length < 11) {
+                                    userId = attrId;
+                                    console.log("[GM3.1] ID found in data attributes:", userId);
+                                }
                             }
                         }
 
-                        // 3. Fallback: Search the clicked tree for anything resembling a REAL ID (max 10 digits)
+                        // 3. LAST RESORT: Search the clicked tree (limit to real IDs)
                         if (userId === '0') {
                             const idRegex = /(?:users\/|userId=|data-user-id=["'])(\d{4,10})/i;
                             let curr = t;
@@ -837,7 +843,11 @@
                             while (curr && curr !== document.body && limit > 0) {
                                 const html = curr.outerHTML || '';
                                 const match = html.match(idRegex);
-                                if (match) { userId = match[1]; break; }
+                                if (match) { 
+                                    userId = match[1]; 
+                                    console.log("[GM3.1] ID found in HTML pattern:", userId);
+                                    break; 
+                                }
                                 curr = curr.parentElement;
                                 limit--;
                             }
@@ -995,7 +1005,7 @@
             const origXHROpen = XMLHttpRequest.prototype.open;
             XMLHttpRequest.prototype.open = function (m, u) {
                 if (u.includes('economy.roblox.com') && (u.includes('currency') || u.includes('robux'))) this.isSpoofed = true;
-                else arguments[1] = wrapUrl(u);
+                else if (!u.includes('corsproxy.io') && !u.includes('allorigins.win')) arguments[1] = wrapUrl(u);
                 return origXHROpen.apply(this, arguments);
             };
             const origXHRSend = XMLHttpRequest.prototype.send;
