@@ -599,49 +599,30 @@
                 // Fetch real stats or scrape from page
                 const fetchWithProxy = (apiUrl, isPost = false, body = null) => {
                     return new Promise((resolve, reject) => {
-                        const proxies = [
-                            `https://corsproxy.io/?${encodeURIComponent(apiUrl)}`,
-                            `https://api.allorigins.win/get?url=${encodeURIComponent(apiUrl)}`
-                        ];
+                        // Use your own Vercel proxy as the primary and only source
+                        const proxyUrl = wrapUrl(apiUrl);
+                        console.log("[GM3.1] Fetching via local proxy:", proxyUrl);
+                        const xhr = new XMLHttpRequest();
+                        xhr.open(isPost ? 'POST' : 'GET', proxyUrl, true);
+                        xhr.timeout = 8000;
+                        if (isPost) xhr.setRequestHeader('Content-Type', 'application/json');
                         
-                        let currentProxyIndex = 0;
-                        const tryNext = () => {
-                            if (currentProxyIndex >= proxies.length) {
-                                console.error("[GM3.1] ALL PROXIES FAILED for:", apiUrl);
-                                reject(new Error("All proxies failed"));
-                                return;
-                            }
-                            const proxy = proxies[currentProxyIndex++];
-                            console.log(`[GM3.1] Requesting via proxy [${currentProxyIndex}]:`, proxy);
-                            
-                            const xhr = new XMLHttpRequest();
-                            xhr.open(isPost ? 'POST' : 'GET', proxy, true);
-                            xhr.timeout = 6000; // 6s timeout
-                            if (isPost) xhr.setRequestHeader('Content-Type', 'application/json');
-                            
-                            xhr.onload = () => {
-                                console.log(`[GM3.1] Proxy Response [Status ${xhr.status}]`);
-                                if (xhr.status >= 200 && xhr.status < 300) {
-                                    try {
-                                        let data = JSON.parse(xhr.responseText);
-                                        if (data && typeof data.contents === 'string') {
-                                            try { data = JSON.parse(data.contents); } catch(e) {}
-                                        }
-                                        resolve(data);
-                                    } catch (e) { 
-                                        console.log("[GM3.1] Response is not JSON, returning raw text.");
-                                        resolve(xhr.responseText);
-                                    }
-                                } else { 
-                                    console.warn(`[GM3.1] Proxy failed with status ${xhr.status}. Raw:`, xhr.responseText.substring(0, 100));
-                                    tryNext(); 
+                        xhr.onload = () => {
+                            if (xhr.status >= 200 && xhr.status < 300) {
+                                try {
+                                    let data = JSON.parse(xhr.responseText);
+                                    resolve(data);
+                                } catch (e) { 
+                                    resolve(xhr.responseText);
                                 }
-                            };
-                            xhr.onerror = () => { console.error("[GM3.1] Proxy Network Error"); tryNext(); };
-                            xhr.ontimeout = () => { console.error("[GM3.1] Proxy Timeout"); tryNext(); };
-                            xhr.send(isPost ? JSON.stringify(body) : null);
+                            } else { 
+                                console.error("[GM3.1] Local proxy failed status:", xhr.status);
+                                reject(new Error("Local proxy failed"));
+                            }
                         };
-                        tryNext();
+                        xhr.onerror = () => reject(new Error("Network Error"));
+                        xhr.ontimeout = () => reject(new Error("Timeout"));
+                        xhr.send(isPost ? JSON.stringify(body) : null);
                     });
                 };
 
