@@ -127,19 +127,33 @@
             // ===== LAYER 5: DOM sanitizer + Aggressive "Roblox is loading" modal killer =====
             const BAD_TEXT = ['roblox is now loading', 'get ready!', 'fishstrap', 'install roblox', 'starting roblox'];
             window.closeTestModal = () => {
-                console.log('[TEST-MODE] Closing modal and restoring site...');
-                // Remove the killed modal
+                console.log('[NUCLEAR-CLEANUP] Restoring interaction...');
+                // 1. Remove marked modals
                 document.querySelectorAll('[data-is-killed="true"]').forEach(m => m.remove());
-                // Aggressively remove ALL backdrops and overlays
-                const backdrops = document.querySelectorAll('.modal-backdrop, .modal-backdrop-bg, .rbx-backdrop, [class*="backdrop"], [class*="overlay"]');
-                backdrops.forEach(b => {
-                    // Safety check: don't remove the main container or body
-                    if (b !== document.body && b !== document.documentElement) b.remove();
+                
+                // 2. Nuclear backdrop removal (any fixed dark element)
+                document.querySelectorAll('*').forEach(el => {
+                    const s = window.getComputedStyle(el);
+                    if (s.position === 'fixed' && (el.classList.contains('modal-backdrop') || s.backgroundColor.includes('rgba(0, 0, 0'))) {
+                        if (el !== document.body && el !== document.documentElement) el.remove();
+                    }
                 });
-                document.body.classList.remove('modal-open');
-                document.body.style.cssText = 'pointer-events: auto !important; overflow: auto !important; padding-right: 0px !important;';
-                // Force a click on the body to trigger any native "close" listeners just in case
-                document.body.click();
+
+                // 3. Reset ALL possible lock classes/styles
+                [document.body, document.documentElement].forEach(target => {
+                    target.classList.remove('modal-open', 'rbx-body-modal-open');
+                    target.style.overflow = 'auto';
+                    target.style.pointerEvents = 'auto';
+                    target.style.paddingRight = '0px';
+                    target.style.userSelect = 'auto';
+                });
+
+                // 4. THE MAGIC: Micro-scroll to reset browser interaction state (replaces Spacebar fix)
+                window.scrollBy(0, 1);
+                setTimeout(() => window.scrollBy(0, -1), 10);
+                
+                // 5. Final event trigger
+                window.dispatchEvent(new Event('resize'));
             };
 
             const killModals = () => {
