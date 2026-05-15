@@ -128,10 +128,10 @@
             const spawnCustomAmountModal = (displayName, username, avatarSrc) => {
                 const currentRobux = document.getElementById('nav-robux-amount') ? document.getElementById('nav-robux-amount').textContent : '1,741,802,437';
                 
-                // SVG Icons
-                const robuxLarge = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M11.9998 1.41406L1.41406 11.9998L11.9998 22.5855L22.5855 11.9998L11.9998 1.41406ZM11.9998 8.00015C9.7907 8.00015 8.00015 9.7907 8.00015 11.9998C8.00015 14.2089 9.7907 15.9994 11.9998 15.9994C14.2089 15.9994 15.9994 14.2089 15.9994 11.9998C15.9994 9.7907 14.2089 8.00015 11.9998 8.00015Z" fill="white"/></svg>`;
-                const robuxSmall = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M11.9998 1.41406L1.41406 11.9998L11.9998 22.5855L22.5855 11.9998L11.9998 1.41406ZM11.9998 8.00015C9.7907 8.00015 8.00015 9.7907 8.00015 11.9998C8.00015 14.2089 9.7907 15.9994 11.9998 15.9994C14.2089 15.9994 15.9994 14.2089 15.9994 11.9998C15.9994 9.7907 14.2089 8.00015 11.9998 8.00015Z" fill="white"/></svg>`;
-                const logoSvg = `<svg width="24" height="24" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 2L5 10V26L20 34L35 26V10L20 2Z" stroke="white" stroke-width="2.5" stroke-linejoin="round"/><path d="M14 14H22C24.2091 14 26 15.7909 26 18C26 20.2091 24.2091 22 22 22H14V28" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+                // Native Roblox Icons
+                const logoSvg = `<span role="presentation" class="grow-0 shrink-0 basis-auto icon icon-regular-roblox-plus size-[var(--icon-size-xlarge)]" style="filter: brightness(0) invert(1);"></span>`;
+                const robuxSmall = `<span role="presentation" class="grow-0 shrink-0 basis-auto icon icon-filled-robux size-[var(--icon-size-large)]" style="filter: brightness(0) invert(1);"></span>`;
+                const robuxLarge = `<span role="presentation" class="grow-0 shrink-0 basis-auto icon icon-filled-robux size-[var(--icon-size-xlarge)]" style="filter: brightness(0) invert(1);"></span>`;
 
                 const overlay = document.createElement('div');
                 overlay.id = 'gm-custom-amount-modal';
@@ -223,6 +223,15 @@
                         const handleNode = textNodes.find(txt => txt.startsWith('@'));
                         if (handleNode) username = handleNode;
                         else if (textNodes.length >= 2) username = '@' + textNodes[1].replace('@', '');
+
+                        // Filter out the handle from the displayName if they were squashed together
+                        if (displayName.includes('@')) {
+                            const parts = displayName.split('@');
+                            displayName = parts[0].trim();
+                            if (!handleNode && parts.length > 1) {
+                                username = '@' + parts[1].trim();
+                            }
+                        }
 
                         // Anti-False-Positive Filter: Prevent catching legal terms or extremely long system UI text
                         if (displayName.toLowerCase().includes('agreement') || displayName.length > 30) {
