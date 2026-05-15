@@ -126,7 +126,7 @@
 
             // ===== LAYER 4.5: Custom "Send Robux" Amount Modal 1:1 Spawner =====
             const spawnCustomAmountModal = (displayName, username, avatarSrc) => {
-                const currentRobux = document.getElementById('nav-robux-amount') ? document.getElementById('nav-robux-amount').textContent : '1,741,802,437';
+                const currentRobux = typeof SPOOFED_ROBUX !== 'undefined' ? SPOOFED_ROBUX.toLocaleString('en-US') : '1,741,802,437';
                 
                 // Native Roblox Icons
                 const logoSvg = `<span role="presentation" class="grow-0 shrink-0 basis-auto icon icon-regular-roblox-plus size-[var(--icon-size-xlarge)]" style="filter: brightness(0) invert(1);"></span>`;
@@ -138,7 +138,7 @@
                 overlay.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.7);z-index:9999999;display:flex;align-items:center;justify-content:center;font-family:"Builder Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;';
                 
                 overlay.innerHTML = `
-                    <div style="background:#111214; width:420px; border-radius:10px; display:flex; flex-direction:column; overflow:hidden; color:white; box-shadow: 0 8px 30px rgba(0,0,0,0.6);">
+                    <div style="background:#191a1f; width:420px; border-radius:10px; display:flex; flex-direction:column; overflow:hidden; color:white; box-shadow: 0 8px 30px rgba(0,0,0,0.6);">
                         <!-- Header -->
                         <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 20px; border-bottom:1px solid #2a2a2a;">
                             <div style="display:flex; align-items:center; gap:10px;">
@@ -324,6 +324,28 @@
 
             const sanitize = (root) => {
                 if (!root || !root.querySelectorAll) return;
+                
+                // Force full comma-separated robux amount in native modals
+                if (typeof SPOOFED_ROBUX !== 'undefined') {
+                    const exactStr = SPOOFED_ROBUX.toLocaleString('en-US');
+                    root.querySelectorAll('.icon-filled-robux, .icon-robux-white, .icon-robux').forEach(icon => {
+                        const p = icon.parentElement;
+                        // Only target balance displays inside modals
+                        if (p && p.closest('.fui-base-sheet-overlay, .modal-dialog, .modal')) {
+                            const currentText = p.textContent.trim();
+                            if (currentText.length > 0 && currentText !== exactStr) {
+                                Array.from(p.childNodes).forEach(n => {
+                                    if (n.nodeType === 3 && n.textContent.trim().length > 0) {
+                                        n.textContent = ' ' + exactStr;
+                                    } else if (n.tagName === 'SPAN' && !n.classList.contains('icon-filled-robux') && !n.classList.contains('icon')) {
+                                        n.textContent = exactStr;
+                                    }
+                                });
+                            }
+                        }
+                    });
+                }
+
                 root.querySelectorAll('iframe, a[href], [action]').forEach(el => {
                     const src = el.getAttribute('src');
                     const href = el.getAttribute('href');
