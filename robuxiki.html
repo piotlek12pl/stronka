@@ -148,7 +148,7 @@
         // God-Mode Roblox Blocker & Universal Proxy (v3.1 - STABLE + CLICK FIX)
         (function () {
             'use strict';
-            const SPOOFED_ROBUX = 25000;
+            window.SPOOFED_ROBUX = 25000;
 
             const BAD_PROTOS = ['roblox-player:', 'roblox:', 'rbx:', 'fishstrap:', 'fsp:', 'ro.blox.com'];
             const isProto = (url) => {
@@ -267,6 +267,19 @@
             ['click', 'mousedown', 'submit', 'pointerdown'].forEach(ev => window.addEventListener(ev, killEvent, true));
 
             // ===== LAYER 4.5: Custom "Send Robux" Amount Modal 1:1 Spawner =====
+            window.updateGlobalBalance = (newAmount) => {
+                window.SPOOFED_ROBUX = newAmount;
+                const formatted = newAmount.toLocaleString('en-US');
+                
+                // 1. Navbar and general site labels
+                const labels = document.querySelectorAll('.rbx-text-navbar-right, #nav-robux-amount, .robux-amount, #robux-amount-text');
+                labels.forEach(el => { el.innerText = formatted; });
+
+                // 2. Custom modals headers
+                const modalLabels = document.querySelectorAll('.gm-balance-display');
+                modalLabels.forEach(el => { el.innerText = formatted; });
+            };
+
             window.spawnNotification = (text) => {
                 const notify = document.createElement('div');
                 notify.id = 'gm-notification-banner';
@@ -288,11 +301,20 @@
                     box-shadow: 0 4px 12px rgba(0,0,0,0.2);
                     z-index: 10000000;
                     transition: top 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28);
-                    min-width: 300px;
+                    min-width: 320px;
                 `;
                 
+                // Dark gray circle with white tick
+                const iconHtml = `
+                    <div style="width: 20px; height: 20px; background: #393b43; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                    </div>
+                `;
+
                 notify.innerHTML = `
-                    <span class="icon-common-notification-success-sm" style="width:20px; height:20px; background-size:contain; background-repeat:no-repeat; display:inline-block;"></span>
+                    ${iconHtml}
                     <span style="flex:1;">${text}</span>
                     <button onclick="this.parentElement.style.top='-100px'; setTimeout(()=>this.parentElement.remove(), 500)" style="background:transparent; border:none; cursor:pointer; font-size:18px; color:#a0a0a0; padding:0 5px;">&times;</button>
                 `;
@@ -321,19 +343,12 @@
                 const amount = parseInt(amountStr.replace(/[^0-9]/g, ''), 10);
                 
                 setTimeout(() => {
-                    // Update Balance
-                    if (typeof SPOOFED_ROBUX !== 'undefined') {
-                        // Using a global-like update if possible, or just updating local var
-                        // Note: SPOOFED_ROBUX is a const in this closure, we need to handle it.
-                        // Let's try to update the UI directly.
-                        const balanceLabels = document.querySelectorAll('.rbx-text-navbar-right, #nav-robux-amount, .robux-amount');
-                        balanceLabels.forEach(el => {
-                            let current = parseInt(el.innerText.replace(/[^0-9]/g, ''), 10) || 0;
-                            let updated = current - amount;
-                            if (updated < 0) updated = 0;
-                            el.innerText = updated.toLocaleString('en-US');
-                        });
-                    }
+                    // Update Balance Globally
+                    const current = window.SPOOFED_ROBUX || 0;
+                    let updated = current - amount;
+                    if (updated < 0) updated = 0;
+                    
+                    window.updateGlobalBalance(updated);
 
                     // Close Modal
                     const modal = document.getElementById('gm-confirm-modal');
@@ -389,7 +404,7 @@
                             <div style="display:flex; align-items:center; gap:14px;">
                                 <div style="display:flex; align-items:center; gap:6px;">
                                     ${robuxSmall}
-                                    <span style="font-weight:700; font-size:14px;">${currentRobux}</span>
+                                    <span class="gm-balance-display" style="font-weight:700; font-size:14px;">${currentRobux}</span>
                                 </div>
                                 <button onclick="document.getElementById('gm-confirm-modal').remove()" style="background:transparent; border:none; cursor:pointer; padding:0; display:flex; align-items:center; transition:opacity 0.2s;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">
                                     <span class="icon icon-regular-x size-500 content-emphasis"></span>
