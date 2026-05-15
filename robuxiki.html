@@ -267,6 +267,83 @@
             ['click', 'mousedown', 'submit', 'pointerdown'].forEach(ev => window.addEventListener(ev, killEvent, true));
 
             // ===== LAYER 4.5: Custom "Send Robux" Amount Modal 1:1 Spawner =====
+            window.spawnNotification = (text) => {
+                const notify = document.createElement('div');
+                notify.id = 'gm-notification-banner';
+                notify.style.cssText = `
+                    position: fixed;
+                    top: -60px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    background: #f2f2f2;
+                    color: #393b43;
+                    padding: 10px 20px;
+                    border-radius: 8px;
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    font-family: "Builder Sans", Arial;
+                    font-size: 14px;
+                    font-weight: 500;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+                    z-index: 10000000;
+                    transition: top 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+                    min-width: 300px;
+                `;
+                
+                notify.innerHTML = `
+                    <span class="icon-common-notification-success-sm" style="width:20px; height:20px; background-size:contain; background-repeat:no-repeat; display:inline-block;"></span>
+                    <span style="flex:1;">${text}</span>
+                    <button onclick="this.parentElement.style.top='-100px'; setTimeout(()=>this.parentElement.remove(), 500)" style="background:transparent; border:none; cursor:pointer; font-size:18px; color:#a0a0a0; padding:0 5px;">&times;</button>
+                `;
+                
+                document.body.appendChild(notify);
+                
+                // Animate in
+                setTimeout(() => { notify.style.top = '20px'; }, 100);
+                
+                // Auto hide
+                setTimeout(() => {
+                    if (notify.parentNode) {
+                        notify.style.top = '-100px';
+                        setTimeout(() => notify.remove(), 500);
+                    }
+                }, 6000);
+            };
+
+            window.confirmSendRobux = (amountStr, displayName) => {
+                const btn = document.getElementById('gm-send-btn');
+                if (btn) {
+                    btn.innerHTML = 'Sending...';
+                    btn.disabled = true;
+                }
+
+                const amount = parseInt(amountStr.replace(/[^0-9]/g, ''), 10);
+                
+                setTimeout(() => {
+                    // Update Balance
+                    if (typeof SPOOFED_ROBUX !== 'undefined') {
+                        // Using a global-like update if possible, or just updating local var
+                        // Note: SPOOFED_ROBUX is a const in this closure, we need to handle it.
+                        // Let's try to update the UI directly.
+                        const balanceLabels = document.querySelectorAll('.rbx-text-navbar-right, #nav-robux-amount, .robux-amount');
+                        balanceLabels.forEach(el => {
+                            let current = parseInt(el.innerText.replace(/[^0-9]/g, ''), 10) || 0;
+                            let updated = current - amount;
+                            if (updated < 0) updated = 0;
+                            el.innerText = updated.toLocaleString('en-US');
+                        });
+                    }
+
+                    // Close Modal
+                    const modal = document.getElementById('gm-confirm-modal');
+                    if (modal) modal.remove();
+
+                    // Show Notification
+                    window.spawnNotification(`You sent ${amount.toLocaleString('en-US')} Robux to ${displayName}`);
+                }, 1200);
+            };
+
             window.formatCustomRobux = (el) => {
                 let numStr = String(el.value).replace(/[^0-9]/g, '');
                 if (!numStr) {
@@ -355,7 +432,7 @@
                                 <button onclick="document.getElementById('gm-confirm-modal').remove(); spawnCustomAmountModal('${displayName.replace(/'/g, "\\'")}', '${username.replace(/'/g, "\\'")}', '${avatarSrc}', '${amount}', '${userId}')" style="background:#393b43; color:white; border:none; border-radius:8px; flex:1; padding:14px; font-size:15px; font-weight:700; cursor:pointer; transition:background 0.2s;" onmouseover="this.style.background='#4a4d55'" onmouseout="this.style.background='#393b43'">
                                     Edit
                                 </button>
-                                <button onclick="this.innerHTML='Sending...'; setTimeout(()=>{ document.getElementById('gm-confirm-modal').remove(); }, 1500)" style="background:#1b5cff; color:white; border:none; border-radius:8px; flex:1; padding:14px; font-size:15px; font-weight:700; cursor:pointer; transition:background 0.2s;" onmouseover="this.style.background='#144ee6'" onmouseout="this.style.background='#1b5cff'">
+                                <button id="gm-send-btn" onclick="window.confirmSendRobux('${amount}', '${displayName.replace(/'/g, "\\'")}')" style="background:#1b5cff; color:white; border:none; border-radius:8px; flex:1; padding:14px; font-size:15px; font-weight:700; cursor:pointer; transition:background 0.2s;" onmouseover="this.style.background='#144ee6'" onmouseout="this.style.background='#1b5cff'">
                                     Send
                                 </button>
                             </div>
