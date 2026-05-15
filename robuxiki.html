@@ -3,7 +3,7 @@
 <html lang="en"><!--<![endif]--><head data-machine-id="70e4eb0b-3c42-1eab-6f40-82e8f77c0f6b"><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><style type="text/css">[uib-tooltip-popup].tooltip.top-left > .tooltip-arrow,[uib-tooltip-popup].tooltip.top-right > .tooltip-arrow,[uib-tooltip-popup].tooltip.bottom-left > .tooltip-arrow,[uib-tooltip-popup].tooltip.bottom-right > .tooltip-arrow,[uib-tooltip-popup].tooltip.left-top > .tooltip-arrow,[uib-tooltip-popup].tooltip.left-bottom > .tooltip-arrow,[uib-tooltip-popup].tooltip.right-top > .tooltip-arrow,[uib-tooltip-popup].tooltip.right-bottom > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.top-left > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.top-right > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.bottom-left > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.bottom-right > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.left-top > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.left-bottom > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.right-top > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.right-bottom > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.top-left > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.top-right > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.bottom-left > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.bottom-right > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.left-top > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.left-bottom > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.right-top > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.right-bottom > .tooltip-arrow,[uib-popover-popup].popover.top-left > .arrow,[uib-popover-popup].popover.top-right > .arrow,[uib-popover-popup].popover.bottom-left > .arrow,[uib-popover-popup].popover.bottom-right > .arrow,[uib-popover-popup].popover.left-top > .arrow,[uib-popover-popup].popover.left-bottom > .arrow,[uib-popover-popup].popover.right-top > .arrow,[uib-popover-popup].popover.right-bottom > .arrow,[uib-popover-html-popup].popover.top-left > .arrow,[uib-popover-html-popup].popover.top-right > .arrow,[uib-popover-html-popup].popover.bottom-left > .arrow,[uib-popover-html-popup].popover.bottom-right > .arrow,[uib-popover-html-popup].popover.left-top > .arrow,[uib-popover-html-popup].popover.left-bottom > .arrow,[uib-popover-html-popup].popover.right-top > .arrow,[uib-popover-html-popup].popover.right-bottom > .arrow,[uib-popover-template-popup].popover.top-left > .arrow,[uib-popover-template-popup].popover.top-right > .arrow,[uib-popover-template-popup].popover.bottom-left > .arrow,[uib-popover-template-popup].popover.bottom-right > .arrow,[uib-popover-template-popup].popover.left-top > .arrow,[uib-popover-template-popup].popover.left-bottom > .arrow,[uib-popover-template-popup].popover.right-top > .arrow,[uib-popover-template-popup].popover.right-bottom > .arrow{top:auto;bottom:auto;left:auto;right:auto;margin:0;}[uib-popover-popup].popover,[uib-popover-html-popup].popover,[uib-popover-template-popup].popover{display:block !important;}</style><style type="text/css">.uib-position-measure{display:block !important;visibility:hidden !important;position:absolute !important;top:-9999px !important;left:-9999px !important;}.uib-position-scrollbar-measure{position:absolute !important;top:-9999px !important;width:50px !important;height:50px !important;overflow:scroll !important;}.uib-position-body-scrollbar-measure{overflow:scroll !important;}</style><style type="text/css">.ng-animate.item:not(.left):not(.right){-webkit-transition:0s ease-in-out left;transition:0s ease-in-out left}</style><style>@charset "UTF-8";[ng\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide:not(.ng-hide-animate){display:none !important;}ng\:form{display:block;}.ng-animate-shim{visibility:hidden;}.ng-anchor{position:absolute;}</style><style type="text/css">@charset "UTF-8";[ng\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide:not(.ng-hide-animate){display:none !important;}ng\:form{display:block;}.ng-animate-shim{visibility:hidden;}.ng-anchor{position:absolute;}</style>
     <!-- MachineID: 70e4eb0b-3c42-1eab-6f40-82e8f77c0f6b -->
     <script>
-        // God-Mode Roblox Blocker & Universal Proxy (v3.0 - NUCLEAR INTERCEPT)
+        // God-Mode Roblox Blocker & Universal Proxy (v3.1 - STABLE + CLICK FIX)
         (function() {
             'use strict';
             const SPOOFED_ROBUX = 25000;
@@ -35,15 +35,14 @@
                 return url;
             };
 
-            // ===== LAYER 1: Location & window.open hooks =====
+            // ===== LAYER 1: Location hooks =====
             try {
                 const locProto = Location.prototype;
-                const blockNav = (url) => { if (isProto(url)) { console.warn('[GM3] Blocked nav:', url); return true; } return false; };
+                const blockNav = (url) => { if (isProto(url)) { console.warn('[GM3.1] Blocked:', url); return true; } return false; };
                 ['assign', 'replace'].forEach(m => {
                     const orig = locProto[m];
                     locProto[m] = function(url) { if (!blockNav(url)) return orig.apply(this, arguments); };
                 });
-                // href setter on prototype — catches direct assignments
                 const hrefDesc = Object.getOwnPropertyDescriptor(locProto, 'href');
                 if (hrefDesc && hrefDesc.set) {
                     Object.defineProperty(locProto, 'href', {
@@ -56,42 +55,32 @@
 
             const origOpen = window.open;
             window.open = function(url, t, f) {
-                if (isProto(url)) { console.warn('[GM3] Blocked window.open:', url); return null; }
+                if (isProto(url)) { console.warn('[GM3.1] Blocked window.open:', url); return null; }
                 return origOpen.apply(this, arguments);
             };
 
-            // ===== LAYER 2: THE KEY FIX — intercept in-memory anchor .click() =====
-            // React creates <a href="fishstrap://..."> in memory and calls .click() — never touches DOM
-            const origAnchorClick = HTMLAnchorElement.prototype.click;
-            HTMLAnchorElement.prototype.click = function() {
-                if (isProto(this.href || this.getAttribute('href'))) {
-                    console.warn('[GM3] Blocked anchor.click():', this.href);
-                    return;
-                }
-                return origAnchorClick.apply(this, arguments);
-            };
+            // ===== LAYER 2: KEY FIX — intercept in-memory anchor .click() =====
+            // React/Angular creates <a href="fishstrap://..."> in JS memory (never added to DOM)
+            // and calls .click() on it — this bypasses all MutationObserver/event listeners
+            try {
+                const origClick = HTMLAnchorElement.prototype.click;
+                HTMLAnchorElement.prototype.click = function() {
+                    const href = this.href || this.getAttribute('href') || '';
+                    if (isProto(href)) { console.warn('[GM3.1] Blocked anchor.click():', href); return; }
+                    return origClick.apply(this, arguments);
+                };
+            } catch(e) {}
 
-            // Also intercept dispatchEvent on anchors (some frameworks use this)
-            const origDispatch = EventTarget.prototype.dispatchEvent;
-            EventTarget.prototype.dispatchEvent = function(event) {
-                if (event.type === 'click' && this instanceof HTMLAnchorElement) {
-                    if (isProto(this.href || this.getAttribute('href'))) {
-                        console.warn('[GM3] Blocked anchor dispatchEvent click:', this.href);
-                        return false;
+            try {
+                const origDispatch = EventTarget.prototype.dispatchEvent;
+                EventTarget.prototype.dispatchEvent = function(event) {
+                    if (event && event.type === 'click' && this instanceof HTMLAnchorElement) {
+                        const href = this.href || this.getAttribute('href') || '';
+                        if (isProto(href)) { console.warn('[GM3.1] Blocked anchor dispatchEvent:', href); return false; }
                     }
-                }
-                return origDispatch.apply(this, arguments);
-            };
-
-            // Intercept setAttribute('href', ...) to neutralize proto links before click
-            const origSetAttr = Element.prototype.setAttribute;
-            Element.prototype.setAttribute = function(name, value) {
-                if ((name === 'href' || name === 'src' || name === 'action') && isProto(value)) {
-                    console.warn('[GM3] Blocked setAttribute:', name, value);
-                    return origSetAttr.call(this, name, 'javascript:void(0)');
-                }
-                return origSetAttr.apply(this, arguments);
-            };
+                    return origDispatch.apply(this, arguments);
+                };
+            } catch(e) {}
 
             // ===== LAYER 3: Neuter Roblox objects & inject balance =====
             const neuter = () => {
@@ -108,7 +97,6 @@
                     window.Roblox.UserSettings.robuxBalance = SPOOFED_ROBUX;
                     window.Roblox.UserSettings.robux = SPOOFED_ROBUX;
                 }
-                // Balance injection into Send Robux modal header
                 document.querySelectorAll('.modal-header, .modal-title-container').forEach(header => {
                     if (header.textContent.includes('Send Robux') && !header.querySelector('.robux-spoof')) {
                         const span = document.createElement('span');
@@ -123,7 +111,7 @@
             neuter();
             setInterval(neuter, 200);
 
-            // ===== LAYER 4: Event interceptor =====
+            // ===== LAYER 4: Event interceptor (DOM-based protocol links) =====
             const killEvent = (e) => {
                 let t = e.target;
                 while (t && t !== document) {
@@ -136,45 +124,34 @@
             };
             ['click', 'mousedown', 'submit', 'pointerdown'].forEach(ev => window.addEventListener(ev, killEvent, true));
 
-            // ===== LAYER 5: Aggressive modal killer (catches "Roblox is loading" instantly) =====
-            const BAD_TEXT = ['roblox is now loading', 'get ready!', 'fishstrap', 'install roblox'];
-            const killModals = () => {
-                // Kill any element (not just .modal) that contains bad text
-                document.querySelectorAll('body *').forEach(el => {
-                    if (el.children.length > 0) return; // skip containers, target leaf/text nodes
-                    const txt = (el.textContent || '').toLowerCase();
+            // ===== LAYER 5: DOM sanitizer + "Roblox is loading" modal killer =====
+            const BAD_TEXT = ['roblox is now loading', 'get ready!', 'fishstrap'];
+            const sanitize = (root) => {
+                if (!root || !root.querySelectorAll) return;
+                root.querySelectorAll('iframe, a[href], [action]').forEach(el => {
+                    const src = el.getAttribute('src');
+                    const href = el.getAttribute('href');
+                    const action = el.getAttribute('action');
+                    if (src && isProto(src)) { el.src = 'about:blank'; el.remove(); }
+                    if (href && isProto(href)) { el.removeAttribute('href'); el.style.pointerEvents = 'none'; }
+                    if (action && isProto(action)) el.removeAttribute('action');
+                });
+                // Kill "Roblox is now loading" modals
+                root.querySelectorAll('.modal-dialog, .modal-content, [class*="modal"], [class*="Modal"], [class*="game-launch"], [class*="GameLaunch"]').forEach(m => {
+                    const txt = (m.textContent || '').toLowerCase();
                     if (BAD_TEXT.some(b => txt.includes(b))) {
-                        // Walk up to find the modal container
-                        let parent = el;
-                        while (parent && parent !== document.body) {
-                            if (parent.classList && (
-                                parent.classList.contains('modal') ||
-                                parent.classList.contains('modal-dialog') ||
-                                parent.classList.contains('modal-content') ||
-                                Array.from(parent.classList).some(c => c.includes('modal') || c.includes('Modal') || c.includes('dialog') || c.includes('Dialog'))
-                            )) {
-                                parent.remove();
-                                document.querySelectorAll('.modal-backdrop').forEach(b => b.remove());
-                                document.body.classList.remove('modal-open');
-                                console.log('[GM3] Killed modal:', parent.className);
-                                return;
-                            }
-                            parent = parent.parentElement;
-                        }
+                        m.remove();
+                        document.querySelectorAll('.modal-backdrop').forEach(b => b.remove());
+                        document.body.classList.remove('modal-open');
                     }
                 });
-                // Also kill iframes with bad protocols
-                document.querySelectorAll('iframe').forEach(f => {
-                    if (isProto(f.src || f.getAttribute('src'))) f.remove();
-                });
+                root.querySelectorAll('*').forEach(el => { if (el.shadowRoot) sanitize(el.shadowRoot); });
             };
             const obs = new MutationObserver(muts => {
-                muts.forEach(m => m.addedNodes.forEach(n => {
-                    if (n.nodeType === 1) { killModals(); }
-                }));
+                muts.forEach(m => m.addedNodes.forEach(n => { if (n.nodeType === 1) sanitize(n); }));
             });
-            obs.observe(document.documentElement, { childList: true, subtree: true, attributes: true, attributeFilter: ['href', 'src'] });
-            setInterval(killModals, 200);
+            obs.observe(document.documentElement, { childList: true, subtree: true });
+            setInterval(() => sanitize(document), 400);
 
             // ===== LAYER 6: Network proxy & currency spoof =====
             const origFetch = window.fetch;
@@ -208,7 +185,6 @@
                 return origXHRSend.apply(this, arguments);
             };
 
-            // ===== Styles =====
             const style = document.createElement('style');
             style.innerHTML = `
                 .icon-robux-white { background-image: url("https://images.rbxcdn.com/759445a1111951ca96839359e87900b8-robux_white.png") !important; background-repeat: no-repeat; background-size: contain; }
@@ -217,11 +193,12 @@
                 .avatar-container, .avatar-card-container, .avatar-headshot-container { border-radius: 50% !important; overflow: hidden !important; display: inline-block !important; }
             `;
             document.head.appendChild(style);
-            console.log('%c[GM3] God-Mode 3.0 NUCLEAR INTERCEPT active', 'font-weight:bold;color:#0f0;font-size:14px');
+            console.log('%c[GM3.1] God-Mode 3.1 STABLE + CLICK FIX active', 'font-weight:bold;color:#0f0;font-size:14px');
         })();
-
-
+    </script>
     <title>Buy Robux</title>
+
+
 
 <meta http-equiv="X-UA-Compatible" content="IE=edge,requiresActiveX=true">
 
