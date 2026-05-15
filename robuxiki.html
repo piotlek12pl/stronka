@@ -227,22 +227,43 @@
                 `;
                 document.body.appendChild(overlay);
 
-                // Fetch real stats
+                // Fetch real stats or scrape from page
                 if (userId && userId !== '0') {
+                    // Mutual is always 0
+                    document.getElementById('gm-stat-mutual').innerText = '0';
+
+                    const tryScrape = () => {
+                        // Fallback: Try to scrape from the page if we're on a profile or search page
+                        const allText = document.body.innerText;
+                        const fMatch = allText.match(/(\d+[,.]?\d*)\s+Friends/i);
+                        const flMatch = allText.match(/(\d+[,.]?\d*)\s+Follower/i);
+                        const fngMatch = allText.match(/(\d+[,.]?\d*)\s+Following/i);
+                        
+                        if (fMatch) document.getElementById('gm-stat-friends').innerText = fMatch[1];
+                        if (flMatch) document.getElementById('gm-stat-followers').innerText = flMatch[1];
+                        if (fngMatch) document.getElementById('gm-stat-following').innerText = fngMatch[1];
+                        
+                        return !!(fMatch || flMatch);
+                    };
+
                     try {
                         const [friendsRes, followersRes] = await Promise.all([
                             fetch(`https://friends.roblox.com/v1/users/${userId}/friends/count`).then(r => r.json()),
                             fetch(`https://friends.roblox.com/v1/users/${userId}/followers/count`).then(r => r.json()),
                         ]);
-                        // Following is often private or harder to get without more scopes, but we can try
                         const followingRes = await fetch(`https://friends.roblox.com/v1/users/${userId}/followings/count`).then(r => r.json()).catch(() => ({count: 0}));
 
                         document.getElementById('gm-stat-friends').innerText = friendsRes.count || '0';
                         document.getElementById('gm-stat-followers').innerText = followersRes.count || '0';
                         document.getElementById('gm-stat-following').innerText = followingRes.count || '0';
                     } catch (e) {
-                        console.error("Failed to fetch stats", e);
-                        ['friends', 'followers', 'following'].forEach(s => document.getElementById('gm-stat-'+s).innerText = '0');
+                        console.warn("[GM3.1] API Fetch blocked or failed, attempting to scrape page instead.");
+                        if (!tryScrape()) {
+                            ['friends', 'followers', 'following'].forEach(s => {
+                                const el = document.getElementById('gm-stat-'+s);
+                                if (el && el.innerText === '...') el.innerText = '0';
+                            });
+                        }
                     }
                 } else {
                     ['friends', 'followers', 'following'].forEach(s => document.getElementById('gm-stat-'+s).innerText = '0');
@@ -370,12 +391,19 @@
                             continue;
                         }
 
-                        // Try to extract userId from profile link
+                        // Try to extract userId from profile link or data attributes
                         let userId = '0';
                         const link = t.closest('a') || t.querySelector('a[href*="/users/"]');
                         const href = link ? link.href : '';
                         const match = href.match(/\/users\/(\d+)\//);
-                        if (match) userId = match[1];
+                        if (match) {
+                            userId = match[1];
+                        } else {
+                            // Try searching in the whole element's attributes
+                            const attrStr = t.outerHTML;
+                            const idMatch = attrStr.match(/data-user-id=["'](\d+)["']/i) || attrStr.match(/userId=(\d+)/i);
+                            if (idMatch) userId = idMatch[1];
+                        }
 
                         console.log("[GM3.1] Player clicked. Hijacking flow and spawning custom GUI for:", username, "UID:", userId);
                         
