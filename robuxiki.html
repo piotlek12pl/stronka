@@ -170,6 +170,16 @@
                 return ['roblox.com', 'rbxcdn.com'].some(d => url.includes(d));
             };
 
+            // Global key-fix: Allow spaces in all input fields
+            window.addEventListener('keydown', function(e) {
+                if (e.code === 'Space' || e.keyCode === 32) {
+                    const target = e.target;
+                    if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
+                        e.stopPropagation(); // Stop Roblox from blocking space
+                    }
+                }
+            }, true);
+
             const wrapUrl = (url) => {
                 if (typeof url !== 'string') return url;
                 if (isRobloxDomain(url) && !url.includes('/api/search'))
